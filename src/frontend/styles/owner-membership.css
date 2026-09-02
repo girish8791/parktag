@@ -248,7 +248,13 @@ body {
 .mb-plan {
   position: relative; min-width: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; min-height: 122px; padding: 15px 7px 13px;
+  /* The stack inside is about 83px of type: term, price, rate, saving badge.
+     122px of card around 83px of content left roughly 11px of dead space above
+     and below it, which is what made the row read as heavier than the choice it
+     presents. 110px hugs the content and lets min-height still govern, so the
+     height stays a known number the skeleton can be cut to rather than whatever
+     the font metrics happen to produce. */
+  gap: 2px; min-height: 110px; padding: 13px 8px 12px;
   background: var(--card); border: 1.5px solid var(--border); border-radius: 18px;
   font-family: inherit; cursor: pointer; text-align: center;
   box-shadow: 0 1px 2px rgba(3, 22, 45, .04);
@@ -405,7 +411,7 @@ body {
    that cannot shrink simply runs out through the card's rounded edge — a
    shimmer bar poking out of the border, on the narrowest phones only. */
 .mb-sk-note { display: inline-block; width: 190px; max-width: 100%; height: 12px; border-radius: 6px; }
-.mb-sk-plan { min-height: 122px; border-radius: 18px; }
+.mb-sk-plan { min-height: 110px; border-radius: 18px; }
 .mb-sk-feat { height: 100px; border-radius: 16px; }
 
 /* The reveal. Each section fades up as it is filled, and the small stagger is
@@ -454,8 +460,8 @@ body {
      one — and ten of them at 42px too tall is 420px of jump. */
   .mb-sk-feat { height: 58px; }
 
-  .mb-plan { min-height: 112px; padding: 13px 5px 12px; }
-  .mb-sk-plan { min-height: 112px; }
+  .mb-plan { min-height: 96px; padding: 11px 5px 10px; }
+  .mb-sk-plan { min-height: 96px; }
   .mb-plan-term { font-size: .7rem; }
   .mb-plan-price { font-size: 1.16rem; }
   .mb-plan-rate { font-size: .62rem; }
@@ -483,11 +489,13 @@ body {
   .mb-wrap { padding-top: 24px; }
   .mb-feats { grid-template-columns: repeat(3, 1fr); }
 
-  .mb-plan { min-height: 138px; padding: 18px 10px 16px; }
-  .mb-sk-plan { min-height: 138px; }
-  .mb-plan-term { font-size: .8rem; }
-  .mb-plan-price { font-size: 1.5rem; }
-  .mb-plan-rate { font-size: .7rem; }
+  /* No plan-card block here on purpose. An earlier pass grew the cards to
+     138px and the price to 1.5rem at this width, on the reasoning that a wider
+     window has room to spare. It does, but the card had already stopped being
+     the size of its content — the extra went into empty space, and a row of
+     three 213x138 tiles reads as the heaviest thing on a page whose actual
+     subject is the ten features below it. The base sizing holds all the way up;
+     what a wide screen gets is a wider card, not a taller one. */
 
   .mb-trial { gap: 18px; padding: 18px 20px; }
 }
