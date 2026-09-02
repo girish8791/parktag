@@ -7,6 +7,15 @@
 import test, { before, after, describe } from "node:test";
 import assert from "node:assert/strict";
 
+// A throwaway pair, set before anything reads the environment — sibling test
+// files delete these same global vars (checkout-pricing, shop-idempotency),
+// so this file cannot rely on them being ambient. Without it,
+// isRazorpayConfigured(env) reads false here, which is why checkoutEnabled
+// silently drops out and verify-payment's "not configured" branch (500) fires
+// ahead of the 400 the unsigned-signature test expects.
+process.env.RAZORPAY_KEY_ID = "rzp_test_ci_placeholder";
+process.env.RAZORPAY_KEY_SECRET = "ci_placeholder_secret";
+
 import {
   startTestApp,
   stopTestApp,
@@ -147,12 +156,12 @@ describe("the membership catalogue", () => {
     assert.equal(body.scopes, undefined);
   });
 
-  // There is no membership SKU in SHOP_PRODUCTS and no recurring-billing path.
-  // The flag is what stops the page opening a checkout that cannot complete;
-  // when one is built, flipping it is the switch.
-  test("checkout stays closed until a membership product exists", async () => {
+  // The flag tracks whether Razorpay is configured, not whether the feature
+  // exists — an environment with no keys shows the page and says why instead of
+  // opening a sheet that cannot complete. The test app configures them.
+  test("checkout opens when Razorpay is configured", async () => {
     const body = (await get("/api/owner/membership")).json();
-    assert.equal(body.checkoutEnabled, false);
+    assert.equal(body.checkoutEnabled, true);
   });
 
   test("the page satisfies the tightened policy it is served with", async () => {
@@ -163,19 +172,56 @@ describe("the membership catalogue", () => {
     const directive = (name) =>
       csp.split(";").map((d) => d.trim()).find((d) => d.startsWith(`${name} `));
 
+    // No inline script, and no inline handlers either — this page builds
+    // nothing with onclick, so it keeps script-src-attr 'none' even though it
+    // now takes a payment. That makes it stricter than /owner-welcome, which
+    // does need inline handlers.
     assert.ok(!directive("script-src").includes("'unsafe-inline'"));
-    assert.ok(!directive("style-src").includes("'unsafe-inline'"));
-    assert.match(csp, /style-src-attr 'unsafe-inline'/);
+    assert.match(csp, /script-src-attr 'none'/);
 
+    // Razorpay's checkout.js has to be reachable or the button does nothing.
+    // This is the directive that decides it, and it is the reason the page
+    // moved off STRICT_SCRIPT_PAGES: that list's script-src has no payment
+    // origin in it, deliberately, because the login and password-reset pages
+    // are on it too.
+    assert.ok(
+      directive("script-src").includes("https://checkout.razorpay.com"),
+      `checkout.js is blocked by script-src: ${directive("script-src")}`
+    );
+    assert.match(csp, /frame-src[^;]*razorpay/, "the payment sheet's iframe is blocked");
+
+    // style-src keeps 'unsafe-inline' here, unlike the strict pages. checkout.js
+    // injects a <style> for its overlay and blocking it leaves the payment sheet
+    // rendering wrong — the same reason /owner-welcome keeps it.
+    assert.ok(directive("style-src").includes("'unsafe-inline'"));
+
+    // The stylesheet stays external regardless. It was extracted because the
+    // strict policy dropped inline styles, and that reason has gone, but a
+    // stylesheet the browser can cache for a year beats one re-sent with every
+    // page — and it keeps this page honest if it is ever tightened again.
     assert.ok(
       !/<style[^>]*>/i.test(response.body),
-      "an inline <style> here is dropped silently and the screen renders unstyled"
+      "the screen's CSS belongs in the cacheable stylesheet, not the page"
     );
     assert.ok(!/\son(click|input|change|submit)\s*=/i.test(response.body));
     assert.match(response.headers["cache-control"] || "", /no-store/);
 
     const css = await get("/styles/owner-membership.css", false);
     assert.equal(css.statusCode, 200, "the stylesheet is not served");
+  });
+
+  // The other strict pages must NOT have gained a payment origin when this one
+  // did. They take no payments, and the whole reason /owner-membership got its
+  // own policy instead of checkout.razorpay.com being added to
+  // STRICT_SCRIPT_SOURCES was to keep it off the credential pages.
+  test("the login pages did not inherit the payment origin", async () => {
+    for (const path of ["/owner-login", "/owner-verify", "/register-owner"]) {
+      const csp = (await get(path, false)).headers["content-security-policy"] || "";
+      assert.ok(
+        !csp.includes("checkout.razorpay.com"),
+        `${path} can load Razorpay's checkout and has no reason to`
+      );
+    }
   });
 
   // The screen is reached from the profile tab, and a card whose button goes
@@ -534,6 +580,147 @@ describe("the layout holds together at every width", () => {
     }
 
     assert.ok(sized >= 2, "no breakpoint resizes the cards, so this proves nothing");
+  });
+});
+
+
+// Nothing the browser says about money is trusted.
+//
+// The checkout is necessarily split: Razorpay's sheet runs in the buyer's
+// browser, because that is what keeps card details off this server entirely.
+// Everything that decides an AMOUNT or an ENTITLEMENT is on this side, and
+// these tests are what keep it that way — a change that starts reading a price
+// out of the request body fails here rather than in production.
+describe("the client cannot decide what it pays", () => {
+  let buyerId;
+  let tagId;
+
+  before(async () => {
+    const owner = await collections.owners.findOne({ email: EMAIL });
+    buyerId = owner._id;
+
+    // A membership attaches to a tag, so the buyer needs one.
+    const tag = await collections.tags.insertOne({
+      ownerId: buyerId,
+      plateNumber: "QA01MEM0001",
+      vehicleType: "car",
+      status: "active",
+      premium: false,
+      token: "qa-membership-checkout",
+      createdAt: new Date().toISOString()
+    });
+    tagId = tag.insertedId;
+  });
+
+  after(async () => {
+    await collections.tags.deleteMany({ token: "qa-membership-checkout" });
+    await collections.membershipOrders.deleteMany({ ownerId: buyerId });
+  });
+
+  function post(url, payload) {
+    return app.inject({
+      method: "POST",
+      url,
+      remoteAddress: uniqueAddress(),
+      headers: { cookie, origin: TEST_ORIGIN, "content-type": "application/json" },
+      payload
+    });
+  }
+
+  // The row create-order would have written, seeded directly.
+  //
+  // Never by calling create-order itself: the credentials in this environment
+  // are live test-mode keys, so minting would leave real abandoned orders in
+  // the Razorpay account on every run. shop-idempotency.test.js solves the same
+  // problem by deleting the key; that is not available here, because verifying
+  // a signature needs the secret. Seeding the row exercises the reuse path
+  // instead, which is the branch that returns before any API call.
+  async function seedOrder(planId, amountPaise, months) {
+    const orderId = `order_QA_MEM_${planId}_${Date.now()}`;
+    await collections.membershipOrders.insertOne({
+      orderId,
+      ownerId: buyerId,
+      tagId,
+      planId,
+      months,
+      amount: amountPaise,
+      currency: "INR",
+      status: "created",
+      createdAt: new Date().toISOString()
+    });
+    return orderId;
+  }
+
+  // The whole point. A body carrying its own price must not change the order.
+  test("an amount in the request body is ignored", async () => {
+    const orderId = await seedOrder("m12", 24900, 12);
+
+    const tampered = await post("/api/owner/membership/create-order", {
+      planId: "m12",
+      amount: 100,
+      amountPaise: 100,
+      priceInr: 1,
+      months: 999,
+      currency: "USD"
+    });
+
+    assert.equal(tampered.statusCode, 200, tampered.body);
+    // It is handed back the seeded order — proof it never reached the minting
+    // branch — and at the catalogue figure, not the one the body asked for.
+    assert.equal(tampered.json().orderId, orderId);
+    assert.equal(tampered.json().amount, 24900, "the browser set its own price");
+    assert.equal(tampered.json().currency, "INR");
+
+    const stored = await collections.membershipOrders.findOne({ orderId });
+    assert.equal(stored.amount, 24900, "the stored amount is not the catalogue price");
+    assert.equal(stored.months, 12, "months came from the request rather than the plan");
+    assert.equal(String(stored.ownerId), String(buyerId), "the order is not bound to its buyer");
+  });
+
+  test("an unknown plan is refused rather than priced at whatever was sent", async () => {
+    const response = await post("/api/owner/membership/create-order", {
+      planId: "m999",
+      amount: 100
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.match(response.json().error, /Unknown plan/);
+  });
+
+  // The public key id is required by checkout.js and is visible in any network
+  // tab. The key secret signs orders and verifies payments and must never leave
+  // this process.
+  test("only the public key id is sent to the browser", async () => {
+    await seedOrder("m1", 4900, 1);
+    const response = await post("/api/owner/membership/create-order", { planId: "m1" });
+
+    assert.equal(response.statusCode, 200, response.body);
+    assert.match(response.body, /"keyId"/, "checkout.js cannot open without the public key id");
+    assert.ok(
+      !response.body.includes(process.env.RAZORPAY_KEY_SECRET || "__never_set__"),
+      "the key secret was serialised to the client"
+    );
+  });
+
+  // A payment report has to be signed with the key secret. Without it anyone
+  // logged in could claim any order was paid and grant themselves a year.
+  test("an unsigned payment claim grants nothing", async () => {
+    const orderId = await seedOrder("m6", 14900, 6);
+
+    const response = await post("/api/owner/membership/verify-payment", {
+      razorpay_order_id: orderId,
+      razorpay_payment_id: "pay_made_up",
+      razorpay_signature: "0".repeat(64)
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.match(response.json().error, /verification failed/i);
+
+    const stored = await collections.membershipOrders.findOne({ orderId });
+    assert.equal(stored.status, "created", "an unsigned claim marked the order paid");
+
+    const tag = await collections.tags.findOne({ _id: tagId });
+    assert.equal(tag.subscription, undefined, "an unsigned claim granted a subscription");
   });
 });
 

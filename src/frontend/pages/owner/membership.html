@@ -94,6 +94,11 @@
   </button>
 </div>
 
+<!-- Razorpay's checkout sheet. Loaded from checkout.razorpay.com, which this
+     page's CSP allows and the other strict pages deliberately do not — see
+     PAYMENT_STRICT_PAGES in app.js. Not deferred: membership.js only calls
+     new Razorpay() from a click, long after this has parsed. -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/scripts/owner/smart-back.js?v=__ASSET_VERSION__"></script>
 <script src="/scripts/owner/session-guard.js?v=__ASSET_VERSION__" defer></script>
 <script type="module" src="/scripts/owner/membership.js?v=__ASSET_VERSION__"></script>
