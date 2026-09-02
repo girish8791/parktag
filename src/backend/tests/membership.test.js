@@ -7,6 +7,15 @@
 import test, { before, after, describe } from "node:test";
 import assert from "node:assert/strict";
 
+// A throwaway pair, set before anything reads the environment — sibling test
+// files delete these same global vars (checkout-pricing, shop-idempotency),
+// so this file cannot rely on them being ambient. Without it,
+// isRazorpayConfigured(env) reads false here, which is why checkoutEnabled
+// silently drops out and verify-payment's "not configured" branch (500) fires
+// ahead of the 400 the unsigned-signature test expects.
+process.env.RAZORPAY_KEY_ID = "rzp_test_ci_placeholder";
+process.env.RAZORPAY_KEY_SECRET = "ci_placeholder_secret";
+
 import {
   startTestApp,
   stopTestApp,
