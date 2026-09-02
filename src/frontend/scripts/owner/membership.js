@@ -6,9 +6,11 @@
 // because a number typed into the browser is a number that drifts from the
 // constant the backend actually enforces.
 //
-// Wired with addEventListener only. /owner-membership is in STRICT_SCRIPT_PAGES
-// (app.js), so its CSP drops 'unsafe-inline' from script-src AND script-src-attr
-// — an onclick here would not error, it would silently never fire.
+// Wired with addEventListener only. /owner-membership is in PAYMENT_STRICT_PAGES
+// (app.js): its CSP serves script-src-attr 'none', so an onclick here would not
+// error — it would silently never fire. That policy also allows exactly one
+// third-party script origin, checkout.razorpay.com, which is what lets the
+// checkout below open at all.
 
 const byId = (id) => document.getElementById(id);
 
@@ -282,11 +284,20 @@ async function startCheckout() {
         if (verifyRes.ok && result.ok) {
           data.subscription = { active: true, currentPeriodEnd: result.currentPeriodEnd };
           setBusy(false);
-          showNote(
+
+          // The receipt is what the SERVER recorded, not the figures this page
+          // was holding from create-order — assembled before the payment and
+          // never reconciled with it. The shop's confirmation follows the same
+          // rule, for the same reason.
+          const parts = [];
+          if (result.orderNumber) parts.push(`Order ${result.orderNumber}.`);
+          parts.push(
             result.currentPeriodEnd
-              ? `Payment received. You are a member until ${formatDate(result.currentPeriodEnd)}.`
-              : "Payment received. Your membership is being set up."
+              ? `You are a member until ${formatDate(result.currentPeriodEnd)}.`
+              : "Your membership is being set up."
           );
+          showNote(`Payment received. ${parts.join(" ")}`);
+          renderPlans();
           return;
         }
 

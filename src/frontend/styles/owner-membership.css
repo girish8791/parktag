@@ -1,10 +1,16 @@
 /* Membership screen (/owner-membership).
 
-   An external stylesheet rather than an inline <style> block: the page is in
-   STRICT_SCRIPT_PAGES in app.js, whose CSP serves style-src WITHOUT
-   'unsafe-inline'. An inline block is dropped silently and the screen renders
-   as unstyled HTML. Inline style="..." ATTRIBUTES are still fine, because
-   style-src-attr keeps 'unsafe-inline' — the two in the header rely on that.
+   An external stylesheet rather than an inline <style> block. It was extracted
+   because the page sat on STRICT_SCRIPT_PAGES, whose CSP drops 'unsafe-inline'
+   from style-src — an inline block was dropped silently and the screen rendered
+   as unstyled HTML.
+
+   The page has since moved to PAYMENT_STRICT_PAGES, which keeps
+   style-src 'unsafe-inline' because Razorpay's checkout.js injects a <style>
+   for its overlay. So an inline block would no longer break. It stays out here
+   anyway: a stylesheet the browser caches for a year beats one re-sent with
+   every page, and the separation is what keeps this honest if the policy is
+   ever tightened again.
 
    ── The look ─────────────────────────────────────────────────────────────
    Light, and led by type. An earlier pass opened this screen on a large navy

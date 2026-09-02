@@ -13,6 +13,7 @@ import {
   verifyRazorpaySignature
 } from "../../lib/integrations/payments.js";
 import { activateMembership } from "../../lib/core/membership-fulfilment.js";
+import { generateOrderNumber } from "../../lib/core/order-number.js";
 import { hasActiveSubscription } from "../../lib/core/subscription.js";
 
 // What the membership screen renders, and the checkout behind it.
@@ -168,6 +169,7 @@ export function registerMembershipRoutes(app, env) {
         return {
           ok: true,
           orderId: reusable.orderId,
+          orderNumber: reusable.orderNumber,
           amount: reusable.amount,
           currency: reusable.currency,
           keyId: env.razorpayKeyId,
@@ -194,8 +196,14 @@ export function registerMembershipRoutes(app, env) {
         }
       });
 
+      // Same reference format and the same atomic sequence the shop uses, so a
+      // buyer quoting "PT-260902-00043" gets one answer and support does not
+      // have to ask which kind of order they mean.
+      const orderNumber = await generateOrderNumber(collections);
+
       await collections.membershipOrders.insertOne({
         orderId: order.id,
+        orderNumber,
         ownerId,
         tagId: target.tag._id,
         planId: plan.id,
@@ -211,6 +219,7 @@ export function registerMembershipRoutes(app, env) {
       return {
         ok: true,
         orderId: order.id,
+        orderNumber,
         amount: order.amount,
         currency: order.currency,
         keyId: env.razorpayKeyId,
@@ -280,9 +289,15 @@ export function registerMembershipRoutes(app, env) {
         log: request.log
       });
 
+      // The receipt says what the SERVER recorded, not what the browser was
+      // still holding from create-order — figures assembled before the payment
+      // and never reconciled with it afterwards. The rule the shop's
+      // confirmation follows, for the same reason.
       return {
         ok: true,
+        orderNumber: order.orderNumber || null,
         planId: order.planId,
+        planLabel: plan.label,
         months: order.months,
         amountPaise: order.amount,
         currentPeriodEnd: outcome.currentPeriodEnd

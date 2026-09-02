@@ -574,6 +574,147 @@ describe("the layout holds together at every width", () => {
   });
 });
 
+
+// Nothing the browser says about money is trusted.
+//
+// The checkout is necessarily split: Razorpay's sheet runs in the buyer's
+// browser, because that is what keeps card details off this server entirely.
+// Everything that decides an AMOUNT or an ENTITLEMENT is on this side, and
+// these tests are what keep it that way — a change that starts reading a price
+// out of the request body fails here rather than in production.
+describe("the client cannot decide what it pays", () => {
+  let buyerId;
+  let tagId;
+
+  before(async () => {
+    const owner = await collections.owners.findOne({ email: EMAIL });
+    buyerId = owner._id;
+
+    // A membership attaches to a tag, so the buyer needs one.
+    const tag = await collections.tags.insertOne({
+      ownerId: buyerId,
+      plateNumber: "QA01MEM0001",
+      vehicleType: "car",
+      status: "active",
+      premium: false,
+      token: "qa-membership-checkout",
+      createdAt: new Date().toISOString()
+    });
+    tagId = tag.insertedId;
+  });
+
+  after(async () => {
+    await collections.tags.deleteMany({ token: "qa-membership-checkout" });
+    await collections.membershipOrders.deleteMany({ ownerId: buyerId });
+  });
+
+  function post(url, payload) {
+    return app.inject({
+      method: "POST",
+      url,
+      remoteAddress: uniqueAddress(),
+      headers: { cookie, origin: TEST_ORIGIN, "content-type": "application/json" },
+      payload
+    });
+  }
+
+  // The row create-order would have written, seeded directly.
+  //
+  // Never by calling create-order itself: the credentials in this environment
+  // are live test-mode keys, so minting would leave real abandoned orders in
+  // the Razorpay account on every run. shop-idempotency.test.js solves the same
+  // problem by deleting the key; that is not available here, because verifying
+  // a signature needs the secret. Seeding the row exercises the reuse path
+  // instead, which is the branch that returns before any API call.
+  async function seedOrder(planId, amountPaise, months) {
+    const orderId = `order_QA_MEM_${planId}_${Date.now()}`;
+    await collections.membershipOrders.insertOne({
+      orderId,
+      ownerId: buyerId,
+      tagId,
+      planId,
+      months,
+      amount: amountPaise,
+      currency: "INR",
+      status: "created",
+      createdAt: new Date().toISOString()
+    });
+    return orderId;
+  }
+
+  // The whole point. A body carrying its own price must not change the order.
+  test("an amount in the request body is ignored", async () => {
+    const orderId = await seedOrder("m12", 24900, 12);
+
+    const tampered = await post("/api/owner/membership/create-order", {
+      planId: "m12",
+      amount: 100,
+      amountPaise: 100,
+      priceInr: 1,
+      months: 999,
+      currency: "USD"
+    });
+
+    assert.equal(tampered.statusCode, 200, tampered.body);
+    // It is handed back the seeded order — proof it never reached the minting
+    // branch — and at the catalogue figure, not the one the body asked for.
+    assert.equal(tampered.json().orderId, orderId);
+    assert.equal(tampered.json().amount, 24900, "the browser set its own price");
+    assert.equal(tampered.json().currency, "INR");
+
+    const stored = await collections.membershipOrders.findOne({ orderId });
+    assert.equal(stored.amount, 24900, "the stored amount is not the catalogue price");
+    assert.equal(stored.months, 12, "months came from the request rather than the plan");
+    assert.equal(String(stored.ownerId), String(buyerId), "the order is not bound to its buyer");
+  });
+
+  test("an unknown plan is refused rather than priced at whatever was sent", async () => {
+    const response = await post("/api/owner/membership/create-order", {
+      planId: "m999",
+      amount: 100
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.match(response.json().error, /Unknown plan/);
+  });
+
+  // The public key id is required by checkout.js and is visible in any network
+  // tab. The key secret signs orders and verifies payments and must never leave
+  // this process.
+  test("only the public key id is sent to the browser", async () => {
+    await seedOrder("m1", 4900, 1);
+    const response = await post("/api/owner/membership/create-order", { planId: "m1" });
+
+    assert.equal(response.statusCode, 200, response.body);
+    assert.match(response.body, /"keyId"/, "checkout.js cannot open without the public key id");
+    assert.ok(
+      !response.body.includes(process.env.RAZORPAY_KEY_SECRET || "__never_set__"),
+      "the key secret was serialised to the client"
+    );
+  });
+
+  // A payment report has to be signed with the key secret. Without it anyone
+  // logged in could claim any order was paid and grant themselves a year.
+  test("an unsigned payment claim grants nothing", async () => {
+    const orderId = await seedOrder("m6", 14900, 6);
+
+    const response = await post("/api/owner/membership/verify-payment", {
+      razorpay_order_id: orderId,
+      razorpay_payment_id: "pay_made_up",
+      razorpay_signature: "0".repeat(64)
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.match(response.json().error, /verification failed/i);
+
+    const stored = await collections.membershipOrders.findOne({ orderId });
+    assert.equal(stored.status, "created", "an unsigned claim marked the order paid");
+
+    const tag = await collections.tags.findOne({ _id: tagId });
+    assert.equal(tag.subscription, undefined, "an unsigned claim granted a subscription");
+  });
+});
+
 describe("the plan module", () => {
   test("plan ids are unique, so a selection cannot be ambiguous", () => {
     const ids = membershipPlans().map((p) => p.id);
