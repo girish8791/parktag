@@ -34,6 +34,29 @@ const PLAN_MONTHS = [
   { id: "m12", months: 12, priceInr: 249 }
 ];
 
+// What the server will actually charge, in paise, for a plan the browser named.
+//
+// The browser sends a plan id and nothing else — never an amount. This is the
+// only place a membership price becomes money, for the same reason
+// getShopProduct is the only place a product price does.
+//
+// A .find() over the array rather than an object index, which is what makes it
+// prototype-safe for free: SHOP_PRODUCTS had to grow an own-property guard
+// because a bare lookup reached "constructor" and "__proto__" and returned
+// something truthy with no amount on it, and the NaN that followed wrote a real
+// order. An array cannot be reached that way at all.
+export function getMembershipPlan(planId) {
+  if (typeof planId !== "string") return null;
+  return membershipPlans().find((plan) => plan.id === planId) || null;
+}
+
+// Paise, because that is the unit Razorpay charges in and the unit every stored
+// amount in this codebase is already in. Converting once, here, keeps the
+// rounding in one place instead of at each call site.
+export function membershipPlanPaise(plan) {
+  return Math.round(plan.priceInr * 100);
+}
+
 function planLabel(months) {
   return months === 1 ? "1 Month" : `${months} Months`;
 }

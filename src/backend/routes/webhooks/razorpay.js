@@ -28,6 +28,7 @@ import crypto from "node:crypto";
 
 import { getCollections } from "../../lib/db/repositories.js";
 import { fulfilPaidOrder } from "../../lib/core/order-fulfilment.js";
+import { activateMembership } from "../../lib/core/membership-fulfilment.js";
 
 // Events that mean "the money for this order is captured". `order.paid` fires
 // once an order is fully paid, which is the state fulfilment cares about;
@@ -132,6 +133,27 @@ export function registerRazorpayWebhookRoutes(app, env) {
       request.log.error({ orderId }, "[razorpay webhook] no database — asking for a retry");
       reply.code(500);
       return { ok: false, error: "Database unavailable" };
+    }
+
+    // Membership orders live in their own collection, so this looks in both.
+    // Checked first because it is the cheaper miss: a membership order id will
+    // never be in shopOrders, and a shop order id will never be here.
+    const membershipOrder = await collections.membershipOrders.findOne({ orderId });
+    if (membershipOrder) {
+      const outcome = await activateMembership(collections, {
+        order: membershipOrder,
+        paymentId,
+        log: request.log
+      });
+
+      if (outcome.firstTime) {
+        request.log.info(
+          { event: "razorpay-webhook-membership", orderId, planId: membershipOrder.planId },
+          "[razorpay webhook] activated a membership the browser never confirmed"
+        );
+      }
+
+      return { ok: true, fulfilled: outcome.firstTime };
     }
 
     const order = await collections.shopOrders.findOne({ orderId });

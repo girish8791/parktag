@@ -147,12 +147,12 @@ describe("the membership catalogue", () => {
     assert.equal(body.scopes, undefined);
   });
 
-  // There is no membership SKU in SHOP_PRODUCTS and no recurring-billing path.
-  // The flag is what stops the page opening a checkout that cannot complete;
-  // when one is built, flipping it is the switch.
-  test("checkout stays closed until a membership product exists", async () => {
+  // The flag tracks whether Razorpay is configured, not whether the feature
+  // exists — an environment with no keys shows the page and says why instead of
+  // opening a sheet that cannot complete. The test app configures them.
+  test("checkout opens when Razorpay is configured", async () => {
     const body = (await get("/api/owner/membership")).json();
-    assert.equal(body.checkoutEnabled, false);
+    assert.equal(body.checkoutEnabled, true);
   });
 
   test("the page satisfies the tightened policy it is served with", async () => {
@@ -163,19 +163,56 @@ describe("the membership catalogue", () => {
     const directive = (name) =>
       csp.split(";").map((d) => d.trim()).find((d) => d.startsWith(`${name} `));
 
+    // No inline script, and no inline handlers either — this page builds
+    // nothing with onclick, so it keeps script-src-attr 'none' even though it
+    // now takes a payment. That makes it stricter than /owner-welcome, which
+    // does need inline handlers.
     assert.ok(!directive("script-src").includes("'unsafe-inline'"));
-    assert.ok(!directive("style-src").includes("'unsafe-inline'"));
-    assert.match(csp, /style-src-attr 'unsafe-inline'/);
+    assert.match(csp, /script-src-attr 'none'/);
 
+    // Razorpay's checkout.js has to be reachable or the button does nothing.
+    // This is the directive that decides it, and it is the reason the page
+    // moved off STRICT_SCRIPT_PAGES: that list's script-src has no payment
+    // origin in it, deliberately, because the login and password-reset pages
+    // are on it too.
+    assert.ok(
+      directive("script-src").includes("https://checkout.razorpay.com"),
+      `checkout.js is blocked by script-src: ${directive("script-src")}`
+    );
+    assert.match(csp, /frame-src[^;]*razorpay/, "the payment sheet's iframe is blocked");
+
+    // style-src keeps 'unsafe-inline' here, unlike the strict pages. checkout.js
+    // injects a <style> for its overlay and blocking it leaves the payment sheet
+    // rendering wrong — the same reason /owner-welcome keeps it.
+    assert.ok(directive("style-src").includes("'unsafe-inline'"));
+
+    // The stylesheet stays external regardless. It was extracted because the
+    // strict policy dropped inline styles, and that reason has gone, but a
+    // stylesheet the browser can cache for a year beats one re-sent with every
+    // page — and it keeps this page honest if it is ever tightened again.
     assert.ok(
       !/<style[^>]*>/i.test(response.body),
-      "an inline <style> here is dropped silently and the screen renders unstyled"
+      "the screen's CSS belongs in the cacheable stylesheet, not the page"
     );
     assert.ok(!/\son(click|input|change|submit)\s*=/i.test(response.body));
     assert.match(response.headers["cache-control"] || "", /no-store/);
 
     const css = await get("/styles/owner-membership.css", false);
     assert.equal(css.statusCode, 200, "the stylesheet is not served");
+  });
+
+  // The other strict pages must NOT have gained a payment origin when this one
+  // did. They take no payments, and the whole reason /owner-membership got its
+  // own policy instead of checkout.razorpay.com being added to
+  // STRICT_SCRIPT_SOURCES was to keep it off the credential pages.
+  test("the login pages did not inherit the payment origin", async () => {
+    for (const path of ["/owner-login", "/owner-verify", "/register-owner"]) {
+      const csp = (await get(path, false)).headers["content-security-policy"] || "";
+      assert.ok(
+        !csp.includes("checkout.razorpay.com"),
+        `${path} can load Razorpay's checkout and has no reason to`
+      );
+    }
   });
 
   // The screen is reached from the profile tab, and a card whose button goes
