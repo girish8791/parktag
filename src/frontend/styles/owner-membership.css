@@ -255,21 +255,58 @@ body {
      height stays a known number the skeleton can be cut to rather than whatever
      the font metrics happen to produce. */
   gap: 2px; min-height: 110px; padding: 13px 8px 12px;
-  background: var(--card); border: 1.5px solid var(--border); border-radius: 18px;
+  background: var(--card); border: 1.5px solid var(--navy); border-radius: 18px;
   font-family: inherit; cursor: pointer; text-align: center;
-  box-shadow: 0 1px 2px rgba(3, 22, 45, .04);
-  transition: border-color .16s, box-shadow .16s, transform .16s;
+  box-shadow: 0 1px 2px rgba(3, 22, 45, .06);
+  /* border-color is no longer animated because it no longer changes — the
+     state lives in the fill and the shadow now. */
+  transition: background-color .16s, box-shadow .16s, transform .16s;
 }
-.mb-plan:hover { border-color: rgba(255, 39, 0, .38); }
+
+/* The glow. Guarded by (hover: hover) so a touch device does not keep it lit
+   on the last card tapped, which is what a bare :hover does on a phone.
+   :focus-visible carries the same thing for keyboard navigation — and only for
+   keyboard, so a mouse click does not leave a ring behind. */
+@media (hover: hover) {
+  .mb-plan:hover { box-shadow: 0 7px 18px rgba(3, 22, 45, .17); }
+}
+.mb-plan:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(3, 22, 45, .30), 0 7px 18px rgba(3, 22, 45, .17);
+}
 .mb-plan:active { transform: scale(.985); }
 
-/* The chosen plan is the solid one — the same convention the reference uses,
-   and the least ambiguous option at this size: a tick in a corner is easy to
-   miss across three cards, a filled card is not. */
+/* The chosen plan.
+   The fill alone cannot carry this. #EAF0F7 against the page's #F1F1F0 is 1.02
+   contrast — a light navy card separates from this background LESS than a plain
+   white one does (1.13), so a filled-only selection would make the chosen card
+   recede behind the two it was picked over. The lift comes from the shadow, and
+   the inner ring doubles the navy edge to about 3px without changing the box
+   size, so nothing reflows when the selection moves. */
 .mb-plan[aria-checked="true"] {
-  background: var(--amber);
-  border-color: var(--amber);
-  box-shadow: 0 9px 24px rgba(255, 39, 0, .32);
+  background: var(--navy-tint);
+  box-shadow:
+    inset 0 0 0 1.5px var(--navy),
+    0 10px 26px rgba(3, 22, 45, .26);
+}
+/* Hovering the chosen card has to keep its ring. .mb-plan:hover and
+   .mb-plan[aria-checked="true"] are both (0,2,0), so the plain hover rule would
+   otherwise be beaten on source order alone and the card would sit inert under
+   the pointer while its neighbours light up. */
+@media (hover: hover) {
+  .mb-plan[aria-checked="true"]:hover {
+    box-shadow:
+      inset 0 0 0 1.5px var(--navy),
+      0 12px 30px rgba(3, 22, 45, .32);
+  }
+}
+/* Selected AND focused: the ring has to survive, or keyboard users lose their
+   place the moment they land on the card that is already chosen. */
+.mb-plan[aria-checked="true"]:focus-visible {
+  box-shadow:
+    inset 0 0 0 1.5px var(--navy),
+    0 0 0 3px rgba(3, 22, 45, .30),
+    0 10px 26px rgba(3, 22, 45, .26);
 }
 
 .mb-plan-term { font-size: .75rem; font-weight: 700; color: var(--ink-3); letter-spacing: .01em; }
@@ -282,10 +319,22 @@ body {
   font-size: .62rem; font-weight: 800; border-radius: 20px; padding: 2px 8px;
 }
 
-.mb-plan[aria-checked="true"] .mb-plan-term { color: rgba(255, 255, 255, .82); }
-.mb-plan[aria-checked="true"] .mb-plan-price { color: #fff; }
-.mb-plan[aria-checked="true"] .mb-plan-rate { color: rgba(255, 255, 255, .72); }
-.mb-plan[aria-checked="true"] .mb-plan-save { background: rgba(255, 255, 255, .2); color: #fff; }
+/* The card is light now, so the text steps DOWN a shade rather than reversing
+   out to white. The price needs no rule at all — it was already navy, and navy
+   on this tint is 15.83:1.
+
+   Both greys get darker than they are on a white card, not lighter: the tint is
+   a darker ground, and the chosen plan is the one that gets read closely.
+   --ink-2 on the tint is 8.98:1. --ink-3 on it is 4.21:1, which is short of the
+   4.5:1 AA wants at this size — but the line is #9CA3AF at 2.54:1 on every
+   white card today, so this is the most legible that rate has ever been here.
+   The base colour is the real fix and it is not this change's to make. */
+.mb-plan[aria-checked="true"] .mb-plan-term { color: var(--ink-2); }
+.mb-plan[aria-checked="true"] .mb-plan-rate { color: var(--ink-3); }
+/* A white chip rather than the green tint: #E7F6EC on #EAF0F7 is 1.06, so the
+   badge would dissolve into the card and leave the words floating. The green
+   stays on the text, where it means something — 5.02:1 on white. */
+.mb-plan[aria-checked="true"] .mb-plan-save { background: #fff; }
 
 .mb-plan-pop {
   position: absolute; top: -9px; left: 50%; transform: translateX(-50%);

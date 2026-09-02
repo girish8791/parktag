@@ -277,6 +277,70 @@ describe("the look", () => {
     );
   });
 
+  // The plan row is navy now: navy edge on every card, a light navy fill and a
+  // navy lift on the one that is chosen. Red still belongs to the page — the
+  // trial tile, the heading rules, the Go Pro button — but not here, where it
+  // used to fill the selected card solid.
+  test("no red survives on the plan cards", async () => {
+    const css = (await get("/styles/owner-membership.css", false)).body.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    // Only the rules for the cards themselves. Scanning the whole stylesheet
+    // would flag the trial tile and the CTA, which are supposed to be red, and
+    // report the brand as the fault.
+    const cardRules = (css.match(/^[ \t]*\.mb-plan[^{]*\{[^}]*\}/gm) || []).join("\n");
+    assert.ok(cardRules.length > 0, "no .mb-plan rules found — the scan is looking at nothing");
+
+    const isRed = (r, g, b) => r > 150 && g < 110 && b < 110;
+    const reds = [];
+
+    for (const hex of cardRules.match(/#[0-9a-fA-F]{6}/g) || []) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      if (isRed(r, g, b)) reds.push(hex);
+    }
+    // rgba() as well as hex: the fill was var(--amber) but the glow under it was
+    // written out longhand as rgba(255, 39, 0, .32), and a hex-only scan would
+    // have called that clean.
+    for (const fn of cardRules.match(/rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+/g) || []) {
+      const [r, g, b] = fn.match(/\d+/g).map(Number);
+      if (isRed(r, g, b)) reds.push(fn + ", ...)");
+    }
+    // var(--amber) resolves to red without ever spelling one out.
+    if (/var\(--amber\b/.test(cardRules)) reds.push("var(--amber)");
+
+    // Prove all three arms bite, or a clean result means nothing.
+    const canary = `.mb-plan { background: #FF2700; box-shadow: 0 9px 24px rgba(255, 39, 0, .32); border-color: var(--amber); }`;
+    const canaryHits = [
+      /#FF2700/.test(canary),
+      /rgba\(\s*255\s*,\s*39\s*,\s*0/.test(canary),
+      /var\(--amber\b/.test(canary)
+    ];
+    assert.deepEqual(canaryHits, [true, true, true], "the red detector does not recognise the red it replaced");
+
+    assert.deepEqual(reds, [], `red on the plan cards: ${reds.join(", ")}`);
+
+    // And the things that replaced it are actually there.
+    assert.match(cardRules, /border:\s*1\.5px solid var\(--navy\)/, "the cards have no navy edge");
+    assert.match(cardRules, /background:\s*var\(--navy-tint\)/, "the chosen card has no light navy fill");
+  });
+
+  // A card you can tab to has to show where you are. The selected card needs it
+  // most: without a rule of its own its ring loses to the selected shadow, and
+  // keyboard users lose their place on the one card already chosen.
+  test("the plan cards show a focus ring, selected or not", async () => {
+    const css = (await get("/styles/owner-membership.css", false)).body.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    assert.match(css, /\.mb-plan:focus-visible\s*\{[^}]*box-shadow/, "no focus ring on a plan card");
+    assert.match(
+      css,
+      /\.mb-plan\[aria-checked="true"\]:focus-visible\s*\{[^}]*box-shadow/,
+      "the selected card's focus ring is missing, so it is beaten by the selected shadow"
+    );
+    // A bare :hover would stay lit on the last card tapped on a phone.
+    assert.match(css, /@media \(hover: hover\)/, "hover styling is not guarded for touch devices");
+  });
+
   // Gold on the star is deliberate. Gold anywhere else would put the page back
   // in the reference's colour scheme, which is the one thing it must not be.
   test("no other yellow reaches the stylesheet", async () => {
