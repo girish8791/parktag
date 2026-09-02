@@ -276,18 +276,26 @@ body {
 }
 .mb-plan:active { transform: scale(.985); }
 
-/* The chosen plan.
-   The fill alone cannot carry this. #EAF0F7 against the page's #F1F1F0 is 1.02
-   contrast — a light navy card separates from this background LESS than a plain
-   white one does (1.13), so a filled-only selection would make the chosen card
-   recede behind the two it was picked over. The lift comes from the shadow, and
-   the inner ring doubles the navy edge to about 3px without changing the box
-   size, so nothing reflows when the selection moves. */
+/* The chosen plan. 2px: a step up from the 1.5px on the other two, not the
+   double edge it started with.
+
+   That first version stacked an inset ring on top of the base border and came
+   to about 3px, which read as a second, louder statement of something the fill
+   had already made. Dropping the ring took it back to 1.5px and lost the step
+   entirely — the chosen card has to be doing something its neighbours are not.
+   2px is the difference being visible without being the loudest thing in the
+   row.
+
+   border-width, not another inset shadow. Everything here is border-box, so
+   the card's outer size does not move and the grid does not reflow when the
+   selection changes; the content is centred, so half a pixel off each inner
+   edge shifts nothing. A sub-pixel inset ring would have rendered soft on top
+   of a hard border, which is how an edge ends up looking blurred rather than
+   thicker. */
 .mb-plan[aria-checked="true"] {
   background: var(--navy-tint);
-  box-shadow:
-    inset 0 0 0 1.5px var(--navy),
-    0 10px 26px rgba(3, 22, 45, .26);
+  border-width: 2px;
+  box-shadow: 0 10px 26px rgba(3, 22, 45, .26);
 }
 /* Hovering the chosen card has to keep its ring. .mb-plan:hover and
    .mb-plan[aria-checked="true"] are both (0,2,0), so the plain hover rule would
@@ -295,16 +303,13 @@ body {
    the pointer while its neighbours light up. */
 @media (hover: hover) {
   .mb-plan[aria-checked="true"]:hover {
-    box-shadow:
-      inset 0 0 0 1.5px var(--navy),
-      0 12px 30px rgba(3, 22, 45, .32);
+    box-shadow: 0 12px 30px rgba(3, 22, 45, .32);
   }
 }
 /* Selected AND focused: the ring has to survive, or keyboard users lose their
    place the moment they land on the card that is already chosen. */
 .mb-plan[aria-checked="true"]:focus-visible {
   box-shadow:
-    inset 0 0 0 1.5px var(--navy),
     0 0 0 3px rgba(3, 22, 45, .30),
     0 10px 26px rgba(3, 22, 45, .26);
 }
