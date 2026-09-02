@@ -124,25 +124,27 @@ describe("the membership catalogue", () => {
     );
   });
 
-  test("every feature belongs to at least one tag type", async () => {
-    const { features, scopes } = (await get("/api/owner/membership")).json();
-    const known = new Set(scopes.map((s) => s.id));
+  // Replaces two tests about the tag-type selector, which is gone: it had three
+  // positions and one useful answer, so the grid is simply what a membership
+  // buys. What still needs pinning is that the list is renderable.
+  test("every feature is renderable and distinct", async () => {
+    const { features } = (await get("/api/owner/membership")).json();
+
+    assert.ok(features.length > 0, "the grid would render empty");
 
     for (const feature of features) {
-      assert.ok(feature.scopes.length > 0, `${feature.id} is shown for no tag type`);
-      for (const scope of feature.scopes) {
-        assert.ok(known.has(scope), `${feature.id} names an unknown tag type: ${scope}`);
-      }
+      assert.ok(feature.id, "a feature has no id");
+      assert.ok(feature.label && feature.label.trim(), `${feature.id} has no label`);
+      assert.ok(feature.icon, `${feature.id} has no icon key`);
+      assert.equal(feature.scopes, undefined, `${feature.id} still carries a tag-type scope`);
     }
   });
 
-  test("every tag type has features to show", async () => {
-    const { features, scopes } = (await get("/api/owner/membership")).json();
-
-    for (const scope of scopes) {
-      const shown = features.filter((f) => f.scopes.includes(scope.id));
-      assert.ok(shown.length > 0, `${scope.label} would render an empty grid`);
-    }
+  // The selector is gone from the payload as well as the page, so a stale
+  // client cannot resurrect a filter the server no longer describes.
+  test("the payload no longer advertises tag types", async () => {
+    const body = (await get("/api/owner/membership")).json();
+    assert.equal(body.scopes, undefined);
   });
 
   // There is no membership SKU in SHOP_PRODUCTS and no recurring-billing path.
@@ -194,7 +196,6 @@ describe("the loading state", () => {
     const body = (await get("/owner-membership")).body;
 
     assert.equal((body.match(/mb-sk-plan/g) || []).length, 3, "plan placeholders missing");
-    assert.equal((body.match(/mb-sk-pill/g) || []).length, 3, "tag-type placeholders missing");
     // Matched on the unique placeholder class rather than on the attribute
     // starting with it: the number also carries a sizing class, and which is
     // written first is not what this asserts.
@@ -203,12 +204,11 @@ describe("the loading state", () => {
 
   // A skeleton of the wrong length is still a layout shift, just an earlier
   // one: the tiles would appear and shove everything below them down the page.
-  test("the tile count matches what the default tag type renders", async () => {
+  test("the tile count matches what the grid renders", async () => {
     const body = (await get("/owner-membership")).body;
-    const { features, scopes } = (await get("/api/owner/membership")).json();
+    const { features } = (await get("/api/owner/membership")).json();
 
-    const defaultScope = scopes[0].id;
-    const rendered = features.filter((f) => f.scopes.includes(defaultScope)).length;
+    const rendered = features.length;
     const placeholders = (body.match(/mb-sk-feat/g) || []).length;
 
     assert.equal(
@@ -303,6 +303,173 @@ describe("the look", () => {
       .filter((hex) => hex.toLowerCase() !== "#ffc02e");
 
     assert.deepEqual(strays, [], `yellow outside the star token: ${strays.join(", ")}`);
+  });
+});
+
+describe("the layout holds together at every width", () => {
+  // A brace-depth walk, because a media block contains braces and a regex for
+  // "a block" stops at the first one it meets.
+  const blocks = (src) => {
+    const out = [];
+    let depth = 0;
+    let start = 0;
+    let head = "";
+    let open = 0;
+
+    for (let i = 0; i < src.length; i += 1) {
+      if (src[i] === "{") {
+        if (depth === 0) {
+          head = src.slice(start, i).trim();
+          open = i;
+        }
+        depth += 1;
+      } else if (src[i] === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          out.push({ head, body: src.slice(open + 1, i), at: start });
+          start = i + 1;
+        }
+      }
+    }
+
+    return out;
+  };
+
+  // Every selector a media block touches must have its base rule EARLIER in the
+  // file. A media query adds no specificity, so a breakpoint written above the
+  // rules it overrides loses to them and does nothing at all — no warning, no
+  // error, just a layout that never changes. This page shipped one (a
+  // max-width: 350px block sitting above half the styles it named) and so did
+  // the dashboard, whose shop grid stayed two columns at every width for a
+  // release. Both were found by eye. This finds the next one.
+  const deadOverrides = (css) => {
+    const all = blocks(css.replace(/\/\*[\s\S]*?\*\//g, ""));
+    const plain = all.filter((b) => !b.head.startsWith("@"));
+    const dead = [];
+
+    for (const media of all.filter((b) => b.head.startsWith("@media"))) {
+      for (const inner of blocks(media.body)) {
+        // Custom properties inherit, so a :root override inside a media block
+        // is the intended pattern rather than a mistake.
+        if (inner.head.startsWith(":root")) continue;
+
+        const base = plain.filter((p) => p.head === inner.head);
+        if (base.length && base[base.length - 1].at > media.at) dead.push(inner.head);
+      }
+    }
+
+    return [...new Set(dead)];
+  };
+
+  test("no breakpoint is dead", async () => {
+    // Prove the detector bites first. A checker that cannot fail is a passing
+    // test that means nothing, which this suite has been caught shipping.
+    assert.deepEqual(
+      deadOverrides("@media (max-width: 400px) { .a { color: red; } }\n.a { color: blue; }"),
+      [".a"],
+      "the detector does not recognise a media block placed above its base rule"
+    );
+
+    const css = (await get("/styles/owner-membership.css", false)).body;
+    assert.deepEqual(
+      deadOverrides(css),
+      [],
+      "a breakpoint sits above the rules it overrides and therefore does nothing"
+    );
+  });
+
+  // The content column, the header row and the fixed action button are three
+  // separate boxes that have to share a left and right edge. The button used to
+  // carry a literal 692px — which is 720 - 14 * 2, correct only while the
+  // gutter was 14px and silently 14px off the column once it was not.
+  test("the action button is derived from the column, not a copy of it", async () => {
+    const css = (await get("/styles/owner-membership.css", false)).body.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    assert.ok(!/692px/.test(css), "the button still carries a hardcoded width");
+    assert.match(
+      css,
+      /max-width:\s*calc\(var\(--wrap\) - var\(--gutter\) \* 2\)/,
+      "the button width is not derived from the column tokens"
+    );
+    assert.match(
+      css,
+      /\.mb-wrap\s*\{[^}]*max-width:\s*var\(--wrap\)/,
+      "the column does not use the token the button is measured against"
+    );
+  });
+
+  // A section break has to be visibly bigger than the gaps inside a section, at
+  // every breakpoint, or it stops reading as a break. These were 20px and 18px,
+  // and the free-trial card floated between the hero above it and the plans
+  // below with nothing to say which it belonged to.
+  test("section gaps stay larger than block gaps at every breakpoint", async () => {
+    const css = (await get("/styles/owner-membership.css", false)).body.replace(/\/\*[\s\S]*?\*\//g, "");
+    const px = (body, name) => {
+      const m = body.match(new RegExp(`--${name}:\\s*(\\d+)px`));
+      return m ? Number(m[1]) : null;
+    };
+
+    const all = blocks(css);
+    const root = all.find((b) => b.head === ":root");
+    assert.ok(root, "the layout tokens are not declared on :root");
+
+    const base = { sec: px(root.body, "space-sec"), blk: px(root.body, "space-blk") };
+    assert.ok(base.sec && base.blk, "the rhythm is not tokenised");
+
+    const scopes = [{ name: "base", ...base }];
+    for (const media of all.filter((b) => b.head.startsWith("@media"))) {
+      const inner = blocks(media.body).find((b) => b.head === ":root");
+      if (!inner) continue;
+      scopes.push({
+        name: media.head,
+        sec: px(inner.body, "space-sec") ?? base.sec,
+        blk: px(inner.body, "space-blk") ?? base.blk
+      });
+    }
+
+    assert.ok(scopes.length >= 4, `only ${scopes.length} layout scopes — that is not a ladder`);
+
+    for (const scope of scopes) {
+      assert.ok(
+        scope.sec > scope.blk,
+        `${scope.name} spaces sections at ${scope.sec}px and blocks at ${scope.blk}px, so there is no break`
+      );
+    }
+  });
+
+  // A placeholder of the wrong size is a layout shift, only an earlier one. The
+  // cards resize at two breakpoints; the shimmer standing in for them has to
+  // resize in the same block.
+  test("the skeleton tracks the cards it stands in for", async () => {
+    const css = (await get("/styles/owner-membership.css", false)).body.replace(/\/\*[\s\S]*?\*\//g, "");
+    const all = blocks(css);
+    const heightOf = (body, sel) => {
+      const m = body.match(new RegExp(`\\${sel}\\s*\\{[^}]*min-height:\\s*(\\d+)px`));
+      return m ? Number(m[1]) : null;
+    };
+
+    const scopes = [
+      {
+        name: "base",
+        body: all.filter((b) => !b.head.startsWith("@")).map((b) => `${b.head}{${b.body}}`).join("\n")
+      },
+      ...all.filter((b) => b.head.startsWith("@media")).map((b) => ({ name: b.head, body: b.body }))
+    ];
+
+    let sized = 0;
+    for (const scope of scopes) {
+      const card = heightOf(scope.body, ".mb-plan");
+      const skeleton = heightOf(scope.body, ".mb-sk-plan");
+      if (card === null && skeleton === null) continue;
+      sized += 1;
+      assert.equal(
+        skeleton,
+        card,
+        `${scope.name} sizes the plan card at ${card}px and its placeholder at ${skeleton}px`
+      );
+    }
+
+    assert.ok(sized >= 2, "no breakpoint resizes the cards, so this proves nothing");
   });
 });
 

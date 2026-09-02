@@ -1,6 +1,5 @@
 import { requireSession } from "../../lib/auth/auth.js";
 import {
-  MEMBERSHIP_SCOPES,
   membershipFeatures,
   membershipPlans,
   membershipTrial
@@ -29,7 +28,6 @@ export function registerMembershipRoutes(app, env) {
         ok: true,
         trial: membershipTrial(),
         plans: membershipPlans(),
-        scopes: MEMBERSHIP_SCOPES,
         features: membershipFeatures(),
         // There is no membership SKU and no recurring-billing path yet, so the
         // page must not open a checkout it cannot finish. Sent as a flag rather

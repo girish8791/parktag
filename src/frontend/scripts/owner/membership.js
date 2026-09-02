@@ -29,18 +29,11 @@ const ICONS = {
   dot: '<circle cx="12" cy="12" r="4" fill="currentColor"/>'
 };
 
-const SCOPE_ICONS = {
-  parking: '<path d="M7 20V4h5.5a4.5 4.5 0 0 1 0 9H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
-  etag: '<rect x="3.5" y="6" width="17" height="12" rx="2.2" stroke="currentColor" stroke-width="1.8"/><path d="M7 10h5M7 13.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  all: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6" stroke="currentColor" stroke-width="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6" stroke="currentColor" stroke-width="1.8"/>'
-};
-
 const svg = (paths, size = 20) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" aria-hidden="true">${paths}</svg>`;
 
 let data = null;
 let selectedPlan = null;
-let selectedScope = null;
 // Whether the skeleton is still on screen. The fade-up plays once, on the
 // first fill — re-rendering after a tap is a state change the owner caused and
 // asked to see immediately, and animating it makes the page feel laggy.
@@ -115,42 +108,16 @@ function renderPlans() {
   }
 }
 
-// ── Tag-type selector ──────────────────────────────────────────────────────
-
-function renderScopes() {
-  const host = byId("mbScopes");
-  fill(host, "mb-in-2");
-
-  for (const scope of data.scopes) {
-    const pill = el("button", "mb-scope");
-    pill.type = "button";
-    pill.setAttribute("role", "tab");
-    pill.setAttribute("aria-selected", scope.id === selectedScope ? "true" : "false");
-
-    const icon = el("span");
-    icon.innerHTML = svg(SCOPE_ICONS[scope.id] || ICONS.dot, 15);
-    pill.appendChild(icon);
-    pill.appendChild(el("span", null, scope.label));
-
-    pill.addEventListener("click", () => {
-      selectedScope = scope.id;
-      renderScopes();
-      renderFeatures();
-    });
-
-    host.appendChild(pill);
-  }
-}
-
 // ── Feature grid ───────────────────────────────────────────────────────────
 
 function renderFeatures() {
   const host = byId("mbFeats");
-  fill(host, "mb-in-3");
+  fill(host, "mb-in-2");
 
-  const shown = data.features.filter((f) => f.scopes.includes(selectedScope));
-
-  shown.forEach((feature, index) => {
+  // Every feature, in the order the server sends them. There was a tag-type
+  // selector filtering this; it had three positions and one useful answer, so
+  // it went and the list is simply what a membership buys.
+  data.features.forEach((feature, index) => {
     const tile = el("div", "mb-feat");
 
     // Cycled rather than stored per feature, so the palette stays even however
@@ -211,7 +178,7 @@ async function load() {
     // Clear the skeleton on the way out. A shimmer that never resolves is a
     // page that looks like it is still loading forever, which is worse than an
     // error — nobody knows to retry.
-    for (const id of ["mbPlans", "mbScopes", "mbFeats"]) fill(byId(id), null);
+    for (const id of ["mbPlans", "mbFeats"]) fill(byId(id), null);
 
     // The banner goes entirely, rather than being emptied. Its whole content is
     // the trial length, and that is exactly what could not be fetched — an
@@ -239,7 +206,6 @@ async function load() {
   // monthly one if nothing is flagged, never nothing at all, so the sticky
   // button always names a price.
   selectedPlan = (data.plans.find((p) => p.popular) || data.plans[0] || {}).id || null;
-  selectedScope = (data.scopes[0] || {}).id || null;
 
   // className is cleared rather than the shimmer class removed one by one:
   // these two spans carry nothing else, and a leftover mb-sk would keep the
@@ -259,7 +225,6 @@ async function load() {
   document.querySelector(".mb-trial").classList.add("mb-in");
 
   renderPlans();
-  renderScopes();
   renderFeatures();
   renderCta();
 
