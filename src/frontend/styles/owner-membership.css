@@ -339,7 +339,22 @@ body {
 .mb-plan-pop {
   position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
   background: var(--navy); color: #fff;
-  font-size: .54rem; font-weight: 900; letter-spacing: .1em;
+  /* 300, down from 900. The ribbon is a label, not a claim that needs
+     shouting — the card under it is already the loudest thing in the row, so
+     the weight was doing work that had been done twice.
+
+     Light reversed out at 8.6px survives on the optical bleed: white on navy
+     spreads outward and thickens the strokes back up, so this reads thinner
+     than it measures. The .1em tracking carries the legibility alongside it —
+     the two belong together, and dropping the tracking at this weight is what
+     would make it fray.
+
+     Every font in the stack that anyone actually gets has a Light: SF on
+     Apple, Segoe UI on Windows, Roboto on Android. Arial, the last resort,
+     does not, so a browser falling all the way through renders this at 400 —
+     heavier than asked for rather than broken, which is the right way round
+     for a fallback. */
+  font-size: .54rem; font-weight: 300; letter-spacing: .1em;
   border-radius: 7px; padding: 3px 9px; white-space: nowrap;
   box-shadow: 0 3px 9px rgba(3, 22, 45, .3);
 }
