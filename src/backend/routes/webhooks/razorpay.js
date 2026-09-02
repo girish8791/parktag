@@ -68,12 +68,20 @@ export function registerRazorpayWebhookRoutes(app, env) {
   // this endpoint exists to close, and the symptom is a customer who paid and
   // received nothing. That is not something to discover from a support ticket.
   //
-  // A warning rather than a refusal to boot, deliberately: the other webhook
-  // secrets are hard-required in production because without them their
-  // endpoints accept FORGED traffic, which is worse than being down. This one
-  // fails closed on its own, so a missing secret costs reconciliation, not
-  // safety — and taking the whole site down over it would be the larger outage.
-  // Promote it to REQUIRED_IN_PRODUCTION once it is set in the environment.
+  // This warning is now unreachable in production: RAZORPAY_WEBHOOK_SECRET is
+  // in REQUIRED_IN_PRODUCTION, so a production boot without it throws in
+  // validateEnv before any route is registered. It stays for the dev and test
+  // paths, where the secret is genuinely optional and the log line is how
+  // someone notices that local webhook callbacks will be refused.
+  //
+  // It took the long way round to being required. The original reasoning was
+  // that the other webhook secrets are hard-required because without them their
+  // endpoints accept FORGED traffic, whereas this one fails closed on its own —
+  // so a missing secret costs reconciliation rather than safety, and taking the
+  // site down over it would be the larger outage. What that weighed wrongly is
+  // the cost of the reconciliation: the loss is silent, it surfaces as a
+  // customer who paid and received nothing, and it ran in production undetected
+  // until 2026-09-02.
   if (!env.razorpayWebhookSecret) {
     const message =
       "[razorpay webhook] RAZORPAY_WEBHOOK_SECRET is not configured — " +
