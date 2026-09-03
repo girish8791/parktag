@@ -13,10 +13,6 @@
   --gt-ink-2: #41506A;
   --gt-ink-3: #7A879B;
   --gt-red: #FF2700;
-  /* Brand yellow, taken from the sticker artwork itself rather than sampled off
-     a reference screenshot: org-parktag-sticker.svg fills with it 14 times —
-     the highlight behind ".me" in the wordmark, and the hazard stripe. */
-  --gt-yellow: #FEE600;
   --gt-line: #E4E9F0;
   --gt-card: #FFFFFF;
   --gt-ground: #F6F8FB;
@@ -149,24 +145,13 @@
   font-weight: 800;
 }
 
-/* A highlighter stroke, not a badge.
- *
- * This was a solid red fill with white text, which is the shape of a warning:
- * red plus reversed-out type is what an error banner looks like, so the most
- * positive line on the page was reading as an alert.
- *
- * Yellow behind dark type is the other thing entirely — the mark someone draws
- * over a sentence they want you to read. The yellow is the brand's own, off the
- * sticker, and the text stays navy so the emphasis comes from the ground rather
- * than from shouting.
- *
- * box-decoration-break keeps the stroke unbroken when the phrase wraps onto a
- * second line; without it the highlight loses its padding on every line but the
- * first. */
+/* The highlight, in brand red. box-decoration-break keeps the bar unbroken
+   when the phrase wraps onto a second line — without it the highlight loses
+   its padding on every line but the first. */
 .gt-mark {
   display: inline;
-  background: var(--gt-yellow);
-  color: var(--gt-ink);
+  background: var(--gt-red);
+  color: #fff;
   padding: 2px 10px;
   border-radius: 8px;
   -webkit-box-decoration-break: clone;
