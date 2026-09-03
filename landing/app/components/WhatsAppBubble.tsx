@@ -63,32 +63,35 @@ export function WhatsAppBubble() {
         // continuous across this change rather than restarting at zero.
         window.ptTrack?.("order_on_whatsapp", { method: "whatsapp", quantity: 1 });
       }}
-      // z-40 sits above the page and deliberately below the tag scanner's
-      // overlay at z-[100] — a floating chat button hovering over an open
-      // camera viewfinder would be both ugly and in the way of the thing the
-      // user actually opened.
+      // Positioning belongs to FloatingActions now; this is just the control.
+      //
+      // A circle on a phone, where horizontal space is the scarce thing and an
+      // icon everybody already recognises does not need a caption. The label
+      // grows in from zero width once there is room, animated rather than
+      // snapped so a resize looks intentional instead of like a reflow bug.
       className="
-        fixed z-40 right-5 bottom-5
-        inline-flex items-center gap-2.5
+        group inline-flex items-center
         rounded-full
-        pl-4 pr-5 py-3.5
+        h-[52px] pl-[14px] pr-[14px] sm:pr-5
         text-white font-bold text-sm
         shadow-lg shadow-black/25
         border-2 border-white/90
         transition-colors
         focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50
       "
-      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = GREEN_HOVER; }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = GREEN; }}
-      style={{
-        backgroundColor: GREEN,
-        // Keeps it clear of the iOS home indicator, where a fixed element at a
-        // flat bottom offset ends up sitting under the system gesture bar.
-        bottom: "calc(1.25rem + env(safe-area-inset-bottom))",
-      }}
     >
       <WhatsAppGlyph />
-      WhatsApp Us
+      <span
+        className="
+          overflow-hidden whitespace-nowrap
+          max-w-0 sm:max-w-[8rem]
+          opacity-0 sm:opacity-100
+          ml-0 sm:ml-2.5
+          transition-all duration-300 ease-out
+        "
+      >
+        WhatsApp Us
+      </span>
     </a>
   );
 }

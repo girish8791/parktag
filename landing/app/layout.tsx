@@ -8,7 +8,7 @@ import "./globals.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 config.autoAddCss = false;
-import { WhatsAppBubble } from "./components/WhatsAppBubble";
+import { FloatingActions } from "./components/FloatingActions";
 
 export const metadata: Metadata = {
   title: "ParkTag | Smart Parking. Instant Connection.",
@@ -83,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Mounted in the layout, not the page: the WhatsApp route should be
             reachable from /about, /contact and the policy pages too, which is
             where somebody with a question actually ends up. */}
-        <WhatsAppBubble />
+        <FloatingActions />
         <Script src={`${APP_URL}/pt-analytics.js`} strategy="afterInteractive" />
       </body>
     </html>

@@ -177,7 +177,12 @@ export default function Home() {
       <main className="flex-1 pt-16">
 
         {/* ── HERO ── */}
-        <section data-nav-dark className="bg-[#03162D] pt-8 pb-0">
+        {/* pb-0 only once the grid is side by side. Stacked, the sticker is the
+            last thing in the column and pb-0 dropped it flush onto the caution
+            band, so the artwork and the stripe collided with no air between
+            them. On desktop the image still runs to the section edge, which is
+            deliberate. */}
+        <section data-nav-dark className="bg-[#03162D] pt-8 pb-12 md:pb-0">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-10 items-center min-h-[520px]">
 
@@ -248,7 +253,7 @@ export default function Home() {
                 </div>
               </AnimateIn>
 
-              <AnimateIn from="bottom" delay={150} className="flex items-end justify-center md:justify-end pt-10">
+              <AnimateIn from="bottom" delay={150} className="flex items-end justify-center md:justify-end mt-4 md:mt-0 md:pt-10">
                 <div className="relative w-full max-w-lg">
                   <div className="absolute inset-0 bg-[#FF2700]/10 blur-3xl rounded-full scale-90" />
                   {/* The sticker's actual print artwork, both faces, rather

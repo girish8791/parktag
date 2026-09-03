@@ -111,7 +111,11 @@ function QrGlyph() {
   );
 }
 
-export function ScanTagButton({ appUrl, className }: { appUrl: string; className?: string }) {
+export function ScanTagButton({
+  appUrl,
+  className,
+  label = "Scan a Tag",
+}: { appUrl: string; className?: string; label?: string }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("");
 
@@ -266,7 +270,7 @@ export function ScanTagButton({ appUrl, className }: { appUrl: string; className
         className={className ?? "group inline-flex items-center gap-2.5 border border-[#FF2700] hover:bg-[#FF2700]/10 text-white font-semibold px-7 py-3.5 rounded-xl text-base transition-colors"}
       >
         <QrGlyph />
-        Scan a Tag
+        {label}
       </button>
 
       {/* Portalled to <body> on purpose. This button sits inside <AnimateIn>,
