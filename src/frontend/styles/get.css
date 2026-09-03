@@ -232,14 +232,14 @@
 .gt-shot {
   margin: 0;
   background: var(--gt-navy-tint);
-  border: 1.5px solid var(--gt-ink);
+  border: 1px solid var(--gt-ink);
   border-radius: 18px;
   padding: 16px;
   text-align: center;
 }
 /* width/height are on the element to reserve the row; the aspect ratio does
    the rest, so `height: auto` must override the attribute rather than obey it. */
-.gt-shot img { width: 100%; max-width: 440px; height: auto; border-radius: 10px; }
+.gt-shot img { width: 100%; max-width: 320px; height: auto; }
 .gt-shot-c { margin: 10px 0 0; font-size: .76rem; color: var(--gt-ink-3); }
 
 /* ── Packs ───────────────────────────────────────────────────────────── */
