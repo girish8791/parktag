@@ -184,7 +184,7 @@ export default function Home() {
             band, so the artwork and the stripe collided with no air between
             them. On desktop the image still runs to the section edge, which is
             deliberate. */}
-        <section data-nav-dark className="bg-[#03162D] pt-8 pb-12 md:pb-0">
+        <section data-nav-dark className="bg-[#03162D] pt-8 pb-24 md:pb-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-10 items-center min-h-[520px]">
 
@@ -304,17 +304,15 @@ export default function Home() {
             instead of three unrelated flourishes. */}
         <HazardStripe />
 
-        {/* The navy runs on past the caution band, and the strip is pulled up
-            into that run rather than up over the band. Pulling it over the band
-            cut the band in half, which is the one element on the page that is
-            purely brand — so the blue is extended instead and the band stays
-            whole above it.
-            The pull matches the extension exactly, so the strip's top edge
-            lands where the band ends. Taller on a phone because the strip wraps
-            to two rows there and half of it is a bigger number. */}
-        <div className="h-[72px] sm:h-16 bg-[#03162D]" />
+        {/* The band runs through the middle of the strip, not above it.
+            The pull is half the strip's own height, so its centre line lands on
+            the band: top half over the navy hero, bottom half over the white
+            below, band passing behind it and reappearing left and right of the
+            plate, which is narrower than the viewport.
+            Two values because the strip is two rows until lg and one row after,
+            so "half its height" is a different number on each. */}
         <div className="bg-white">
-          <div className="relative z-10 -mt-[72px] sm:-mt-16">
+          <div className="relative z-10 -mt-[76px] lg:-mt-[46px]">
             <TrustStrip />
           </div>
         </div>
