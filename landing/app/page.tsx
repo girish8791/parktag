@@ -184,7 +184,7 @@ export default function Home() {
             band, so the artwork and the stripe collided with no air between
             them. On desktop the image still runs to the section edge, which is
             deliberate. */}
-        <section data-nav-dark className="bg-[#03162D] pt-8 pb-24 md:pb-16">
+        <section data-nav-dark className="relative bg-[#03162D] pt-8 pb-24 md:pb-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-10 items-center min-h-[520px]">
 
@@ -297,12 +297,18 @@ export default function Home() {
             </div>
           </div>
 
-        </section>
+          {/* Absolutely positioned on the hero's own bottom edge, then pushed
+              down half its height, so exactly half the band sits inside the
+              navy and half hangs into the white below. Absolute rather than in
+              the flow so the hero's height does not change and nothing below it
+              moves.
+              inset-x-0 rather than a width, so it runs the full page rather
+              than the hero's container. z-30 puts it above both sections and
+              above the trust plate, which is z-10 — the band reads as a
+              physical strip laid across the seam and over anything on it. */}
+          <HazardStripe className="absolute inset-x-0 bottom-0 translate-y-1/2 z-30 shadow-[0_6px_16px_rgba(1,13,26,0.35)]" />
 
-        {/* The band caps every dark section where it meets a light one. Used as
-            a rule rather than decoration, so it reads as the brand's mark
-            instead of three unrelated flourishes. */}
-        <HazardStripe />
+        </section>
 
         {/* The band runs through the middle of the strip, not above it.
             The pull is half the strip's own height, so its centre line lands on
@@ -512,6 +518,8 @@ export default function Home() {
           </div>
         </section>
 
+        <HazardStripe />
+
         {/* ── PRICING ── */}
         <section id="pricing" className="bg-white py-20 sm:py-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -694,7 +702,7 @@ export default function Home() {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#03162D] py-12">
+      <footer className="bg-[#010D1A] py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid sm:grid-cols-4 gap-8 mb-10">
             <div className="sm:col-span-2">
@@ -702,7 +710,12 @@ export default function Home() {
                 <img src="/dark-logo.png" alt="ParkTag" style={{ height: "42px", width: "auto" }} />
               </div>
               <p className="text-white/40 text-sm leading-relaxed max-w-xs">Smart vehicle connection system built for modern India. Simple, secure, accessible.</p>
-              <a href="mailto:support@parktag.me" className="text-[#FF2700] text-sm mt-3 inline-block hover:text-white transition-colors">support@parktag.me</a>
+              <a
+                href="mailto:support@parktag.me"
+                className="mt-4 inline-flex items-center rounded-full border border-white/35 px-4 py-2 text-sm text-white transition-colors hover:border-white hover:bg-white/10"
+              >
+                support@parktag.me
+              </a>
             </div>
 
             <div>
