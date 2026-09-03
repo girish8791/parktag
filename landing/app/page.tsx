@@ -310,7 +310,11 @@ export default function Home() {
               Some Special Features
             </p>
 
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-y-8 gap-x-4">
+            {/* Four across at every width, so the eight items always read as two
+                rows of four. sm:grid-cols-8 used to flatten them into a single
+                line on desktop, which turned a block you scan into a strip you
+                skim past and left the labels cramped under wide gaps. */}
+            <div className="grid grid-cols-4 gap-y-8 sm:gap-y-10 gap-x-4 sm:gap-x-8">
               {([
                 ["Instant Scan Alert", <svg key="bell" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>],
                 ["Anonymous Chat", <svg key="chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
