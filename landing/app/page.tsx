@@ -4,7 +4,6 @@ import { FaqAccordion } from "./components/FaqAccordion";
 import { AnimateIn } from "./components/AnimateIn";
 import { VehicleRotator } from "./components/VehicleRotator";
 import { GetStartedButton } from "./components/GetStartedButton";
-import { ScanTagButton } from "./components/ScanTagButton";
 import { BuyOnAmazonButton } from "./components/BuyOnAmazonButton";
 import { HazardStripe } from "./components/HazardStripe";
 
@@ -264,13 +263,13 @@ export default function Home() {
                 </div>
 
 
-                {/* The two routes we would rather a sale did not take, kept
-                    reachable and visibly minor. */}
+                {/* Scan lived here too until the floating pill arrived. Two
+                    entry points to the same camera modal on one screen, one of
+                    them for a visitor who is not the buyer, was a choice this
+                    hero did not need to offer. The floating control is
+                    permanent and reaches every page, so this one was the
+                    redundant half. */}
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6">
-                  <ScanTagButton
-                    appUrl={APP_URL}
-                    className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors"
-                  />
                   <BuyOnAmazonButton className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors" />
                 </div>
               </AnimateIn>
