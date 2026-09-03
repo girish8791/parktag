@@ -30,7 +30,7 @@ const CASES: [IconDefinition, string, string][] = [
 
 export function WhatIsParkTag() {
   return (
-    <section id="features" className="bg-white py-28">
+    <section id="features" className="bg-white py-20 sm:py-28">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
 
         <p className="mb-5"><SectionLabel>What is ParkTag?</SectionLabel></p>

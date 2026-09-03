@@ -304,13 +304,17 @@ export default function Home() {
             instead of three unrelated flourishes. */}
         <HazardStripe />
 
-        {/* Straddles the seam rather than sitting below it. The white wrapper
-            begins under the caution band; the strip is pulled up out of it, so
-            its top half overlaps the band and the hero while its bottom half
-            lands on white. Negative margin rather than a transform, because a
-            transform would leave the space behind and open a gap under it. */}
+        {/* The navy runs on past the caution band, and the strip is pulled up
+            into that run rather than up over the band. Pulling it over the band
+            cut the band in half, which is the one element on the page that is
+            purely brand — so the blue is extended instead and the band stays
+            whole above it.
+            The pull matches the extension exactly, so the strip's top edge
+            lands where the band ends. Taller on a phone because the strip wraps
+            to two rows there and half of it is a bigger number. */}
+        <div className="h-[72px] sm:h-16 bg-[#03162D]" />
         <div className="bg-white">
-          <div className="relative z-10 -mt-[52px] sm:-mt-[58px]">
+          <div className="relative z-10 -mt-[72px] sm:-mt-16">
             <TrustStrip />
           </div>
         </div>
@@ -318,7 +322,7 @@ export default function Home() {
         <WhatIsParkTag />
 
         {/* ── BEFORE / AFTER ── */}
-        <section className="bg-gray-50 py-20">
+        <section className="bg-gray-50 py-20 sm:py-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <AnimateIn>
               <p className="mb-4"><SectionLabel>The Problem</SectionLabel></p>
@@ -385,8 +389,8 @@ export default function Home() {
         </section>
 
         {/* ── WHY PARKTAG ── */}
-        <section className="bg-gray-50 py-20">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <section className="bg-gray-50 py-20 sm:py-28">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
 
               <AnimateIn from="left">
@@ -444,7 +448,7 @@ export default function Home() {
           steps one through three, so the sequence just stopped rather than
           arriving anywhere; it is the payoff and now reads as one.
         */}
-        <section id="how-it-works" data-nav-dark className="bg-[#03162D] py-28">
+        <section id="how-it-works" data-nav-dark className="bg-[#03162D] py-20 sm:py-28">
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
 
             <div className="text-center mb-14">
@@ -511,8 +515,8 @@ export default function Home() {
         </section>
 
         {/* ── PRICING ── */}
-        <section id="pricing" className="bg-white py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <section id="pricing" className="bg-white py-20 sm:py-28">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
 
             <AnimateIn>
               <p className="mb-3"><SectionLabel>Pricing</SectionLabel></p>
@@ -656,7 +660,7 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ── */}
-        <section id="faq" className="bg-gray-50 py-20">
+        <section id="faq" className="bg-gray-50 py-20 sm:py-28">
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
             <p className="text-center mb-4"><SectionLabel>FAQ</SectionLabel></p>
             <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-[#03162D] mb-12 tracking-tight leading-snug">
@@ -671,7 +675,7 @@ export default function Home() {
         <HazardStripe />
 
         {/* ── CTA ── */}
-        <section data-nav-dark className="bg-[#03162D] py-20">
+        <section data-nav-dark className="bg-[#03162D] py-20 sm:py-28">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <AnimateIn>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">
