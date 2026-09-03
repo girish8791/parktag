@@ -8,7 +8,7 @@ import {
 import { getCollections } from "../../lib/db/repositories.js";
 import { requireSession, toObjectId, tryObjectId } from "../../lib/auth/auth.js";
 import { generateOrderNumber } from "../../lib/core/order-number.js";
-import { addressToNotes } from "../../lib/core/address.js";
+import { addressToNotes, validateAddress } from "../../lib/core/address.js";
 import { createPremiumTagForVehicle } from "../../lib/core/tag-issuance.js";
 import { reassignVaultDocuments } from "../../lib/core/vault.js";
 import { createShipment, isDelhiveryConfigured, updateShipmentToPrepaid, trackingUrl } from "../../lib/integrations/delhivery.js";
@@ -260,6 +260,187 @@ export function registerShopRoutes(app, env) {
       }
 
       return { ok: true, products, codSurchargePaise: COD_SURCHARGE_PAISE };
+    }
+  );
+
+  // ── Guest checkout ────────────────────────────────────────────────────
+  //
+  // Buy a tag without an account: pick a pack, give a delivery address, pay.
+  //
+  // WHY NO ACCOUNT IS CREATED HERE, and why that is the safe half rather than
+  // the lazy one. The only identifier a guest supplies is a delivery phone
+  // number, and nothing has verified that it is theirs. Looking an owner up by
+  // it and attaching the order — never mind issuing a session — would mean
+  // anybody could type a stranger's number and act as them. So a guest order
+  // carries `ownerId: null` and is attached to NO account, existing or new.
+  //
+  // The buyer gets their tag the way a retail buyer already does: the sticker
+  // arrives, they activate it, and the OTP wizard creates the account at that
+  // point, against a number that has by then actually been proven. Nothing
+  // about the order lifecycle forks — fulfilPaidOrder books the shipment off
+  // the address snapshot, and the confirmation falls through to WhatsApp on the
+  // delivery number, which is what it already does for an owner with no e-mail.
+  //
+  // What that costs: no tag is minted at fulfilment (none is for a plain
+  // physical order anyway) and no replaceTagId upgrade path, which is a
+  // signed-in concept. Both are deliberate.
+  app.post(
+    "/api/shop/guest/create-order",
+    // Tighter than the signed-in route's 20/min, and per IP rather than per
+    // account, because there is no account to hold anyone to: every call that
+    // gets through mints a real order in the Razorpay dashboard.
+    { config: { rateLimit: { max: 8, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      const { productId, variant: rawVariant, address: rawAddress } = request.body || {};
+
+      const product = getShopProduct(productId);
+      if (!product) { reply.code(400); return { ok: false, error: "Unknown product." }; }
+
+      // Same validator the signed-in flow uses when an owner saves an address,
+      // so a guest cannot ship to something the dashboard would have rejected.
+      const checked = validateAddress(rawAddress);
+      if (!checked.ok) { reply.code(400); return { ok: false, error: checked.error }; }
+      const shipping = checked.address;
+
+      const variant = shapeVariant(rawVariant);
+
+      const collections = await getCollections(env);
+      if (!collections) { reply.code(500); return { ok: false, error: "Database not configured." }; }
+
+      // Reuse an identical unpaid guest order rather than minting a second one.
+      // The signed-in route does this keyed on the owner; here the address IS
+      // the identity, so an exact match on it plus the product, the variant and
+      // the current price is what "the same checkout, reloaded" looks like.
+      // Without it, a reload burns an order number and leaves an abandoned
+      // order in the Razorpay account every time.
+      const expectedPaise = Math.round(product.amount * 100);
+      const reusable = await collections.shopOrders.findOne(
+        {
+          ownerId: null,
+          guest: true,
+          status: "created",
+          productId,
+          variant,
+          amount: expectedPaise
+        },
+        { sort: { createdAt: -1 } }
+      );
+
+      if (reusable && JSON.stringify(reusable.shippingAddress) === JSON.stringify(shipping)) {
+        return {
+          ok: true,
+          orderId: reusable.orderId,
+          orderNumber: reusable.orderNumber,
+          amount: reusable.amount,
+          currency: reusable.currency,
+          keyId: env.razorpayKeyId,
+          prefill: { name: shipping.fullName, contact: shipping.phone }
+        };
+      }
+
+      if (!isRazorpayConfigured(env)) { reply.code(500); return { ok: false, error: "Razorpay not configured." }; }
+
+      try {
+        const order = await createRazorpayOrder(env, {
+          amount: product.amount, // server catalogue price, never the client's
+          receipt: `ptg_${productId}_${Date.now()}`,
+          notes: { productId, productName: product.name, guest: "1", ...addressToNotes(shipping) }
+        });
+
+        const orderNumber = await generateOrderNumber(collections);
+        await collections.shopOrders.insertOne({
+          orderId: order.id,
+          orderNumber,
+          paymentMethod: "online",
+          // The field every other order has, explicitly null rather than
+          // absent, so "is this a guest order?" is answerable in one query and
+          // the reuse lookup above can match on it.
+          ownerId: null,
+          guest: true,
+          productId,
+          productName: product.name,
+          variant,
+          amount: order.amount,
+          currency: order.currency,
+          status: "created",
+          shippingAddress: shipping,
+          replaceTagId: null,
+          createdAt: new Date().toISOString()
+        });
+
+        return {
+          ok: true,
+          orderId: order.id,
+          orderNumber,
+          amount: order.amount,
+          currency: order.currency,
+          // Public key, the same one GET /api/shop/razorpay-key serves.
+          keyId: env.razorpayKeyId,
+          prefill: { name: shipping.fullName, contact: shipping.phone }
+        };
+      } catch (err) {
+        request.log.error({ err }, "[guest checkout] Razorpay order creation failed");
+        reply.code(500);
+        return { ok: false, error: "Failed to create order. Please try again." };
+      }
+    }
+  );
+
+  // Confirm a guest payment.
+  //
+  // Public, and safe to be: the signature is an HMAC over `order_id|payment_id`
+  // with the key secret, so only Razorpay can produce one. That, not a session,
+  // is what proves the payment — the signed-in route trusts the same thing.
+  //
+  // Scoped to guest orders. An order belonging to an actual owner must not be
+  // confirmable through the door that asks nobody who they are, even though the
+  // signature would be equally valid, because everything downstream of a real
+  // owner's order touches their tags and their vault.
+  app.post(
+    "/api/shop/guest/verify-payment",
+    { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = request.body || {};
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        reply.code(400);
+        return { ok: false, error: "Missing payment details." };
+      }
+
+      const valid = verifyRazorpaySignature(env, {
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        signature: razorpay_signature
+      });
+      if (!valid) {
+        request.log.warn({ event: "guest-verify-bad-signature" }, "[guest checkout] signature did not verify");
+        reply.code(400);
+        return { ok: false, error: "Payment verification failed." };
+      }
+
+      const collections = await getCollections(env);
+      if (!collections) { reply.code(500); return { ok: false, error: "Database not configured." }; }
+
+      const order = await collections.shopOrders.findOne({
+        orderId: razorpay_order_id,
+        guest: true
+      });
+      if (!order) { reply.code(404); return { ok: false, error: "Order not found." }; }
+
+      // Same fulfilment the signed-in path and the webhook use. Idempotent:
+      // whichever of the three arrives first does the work.
+      const outcome = await fulfilPaidOrder(env, collections, {
+        order,
+        paymentId: razorpay_payment_id,
+        log: request.log
+      });
+
+      return {
+        ok: true,
+        fulfilled: outcome.firstTime,
+        orderNumber: order.orderNumber,
+        // What the buyer needs to find this order again without an account.
+        trackWith: (order.shippingAddress && order.shippingAddress.phone || "").slice(-4)
+      };
     }
   );
 

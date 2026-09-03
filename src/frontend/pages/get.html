@@ -169,6 +169,87 @@
       <a class="gt-btn gt-bar-cta" href="/shop?sku=pt-car-2" id="gtBarCta" data-sku="pt-car-2">Order now →</a>
     </div>
 
+    <!-- ── Checkout ────────────────────────────────────────────────────────
+         Delivery details, then Razorpay. No account, no sign-in: the sticker
+         is activated after it arrives, and the OTP wizard makes the account
+         then, against a number that has by then been proven. -->
+    <div class="gt-sheet-bd" id="gtSheetBd" hidden></div>
+
+    <section class="gt-sheet" id="gtSheet" hidden aria-modal="true" role="dialog" aria-labelledby="gtSheetT">
+      <header class="gt-sheet-h">
+        <h2 class="gt-sheet-t" id="gtSheetT">Delivery details</h2>
+        <button class="gt-sheet-x" id="gtSheetX" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+
+      <p class="gt-sheet-s" id="gtSheetSub"></p>
+
+      <!-- A real form: Enter submits, and a password manager or the browser's
+           own address autofill can fill it, which it cannot do for a pile of
+           loose inputs. -->
+      <form class="gt-form" id="gtForm" novalidate>
+        <label class="gt-f">
+          <span>Full name</span>
+          <input name="fullName" type="text" autocomplete="name" required maxlength="80" />
+        </label>
+
+        <label class="gt-f">
+          <span>Mobile number</span>
+          <input name="phone" type="tel" inputmode="numeric" autocomplete="tel-national"
+                 required maxlength="10" placeholder="10 digits" />
+        </label>
+
+        <label class="gt-f">
+          <span>House / flat and street</span>
+          <input name="line1" type="text" autocomplete="address-line1" required maxlength="120" />
+        </label>
+
+        <label class="gt-f">
+          <span>Area, locality <span class="gt-f-opt">(optional)</span></span>
+          <input name="line2" type="text" autocomplete="address-line2" maxlength="120" />
+        </label>
+
+        <label class="gt-f">
+          <span>Landmark <span class="gt-f-opt">(optional)</span></span>
+          <input name="landmark" type="text" maxlength="120" />
+        </label>
+
+        <div class="gt-f-row">
+          <label class="gt-f">
+            <span>City</span>
+            <input name="city" type="text" autocomplete="address-level2" required maxlength="60" />
+          </label>
+          <label class="gt-f">
+            <span>PIN code</span>
+            <input name="pincode" type="text" inputmode="numeric" autocomplete="postal-code"
+                   required maxlength="6" />
+          </label>
+        </div>
+
+        <label class="gt-f">
+          <span>State</span>
+          <input name="state" type="text" autocomplete="address-level1" required maxlength="60" />
+        </label>
+
+        <p class="gt-err" id="gtErr" hidden role="alert"></p>
+
+        <button class="gt-btn gt-cta gt-pay" id="gtPay" type="submit">Continue to payment</button>
+        <p class="gt-fine">Secured by Razorpay · UPI, cards, net banking</p>
+      </form>
+
+      <!-- Replaces the form once the payment lands. -->
+      <div class="gt-done" id="gtDone" hidden>
+        <div class="gt-done-i" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="gt-done-t">Order confirmed</h3>
+        <p class="gt-done-s" id="gtDoneSub"></p>
+        <a class="gt-btn gt-cta" id="gtDoneTrack" href="/track-order">Track this order</a>
+      </div>
+    </section>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="/scripts/get.js?v=__ASSET_VERSION__"></script>
   </body>
 </html>
