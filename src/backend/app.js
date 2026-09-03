@@ -41,6 +41,9 @@ import { registerPasswordResetRoutes } from "./routes/auth/password-reset.js";
 import { registerRuntimeRoutes } from "./routes/system/runtime.js";
 import { registerReviewerSetupRoute } from "./routes/system/reviewer-setup.js";
 import { registerShopRoutes } from "./routes/shop/index.js";
+// Used by /shop to check that a pack id arriving from the public storefront is
+// a real product before it is carried into a redirect.
+import { getShopProduct } from "./lib/integrations/payments.js";
 
 const currentFile = fileURLToPath(import.meta.url);
 const currentDir = path.dirname(currentFile);
@@ -857,10 +860,22 @@ export async function buildApp() {
   // dashboard once the visitor is through (see owner/login.js).
   app.get("/shop", async (request, reply) => {
     const session = await readSession(app, request);
+
+    // Which pack the visitor picked on /get, carried through so they land on
+    // that one rather than on a shop tab with their choice forgotten.
+    //
+    // Validated against the catalogue here rather than trusted onward: this
+    // arrives in a query string from a public page, and everything downstream
+    // of it puts the value into a URL. An id that is not a real product is
+    // dropped, so the worst a crafted link can do is open the shop.
+    const requested = (request.query || {}).sku;
+    const sku = getShopProduct(typeof requested === "string" ? requested : "") ? requested : null;
+    const carry = sku ? `&sku=${encodeURIComponent(sku)}` : "";
+
     if (!session || session.role !== "owner") {
-      return reply.redirect("/owner-login?next=shop");
+      return reply.redirect(`/owner-login?next=shop${carry}`);
     }
-    return reply.redirect("/owner-welcome?shop=1");
+    return reply.redirect(`/owner-welcome?shop=1${carry}`);
   });
 
   // The shop window. Deliberately public, and deliberately NOT /shop.

@@ -127,7 +127,7 @@ function renderPacks(products) {
 
     const cta = document.createElement("a");
     cta.className = "gt-btn gt-pack-cta";
-    cta.href = "/shop";
+    cta.href = `/shop?sku=${encodeURIComponent(pack.id)}`;
     cta.textContent = "Order";
     cta.dataset.sku = pack.id;
     cta.setAttribute("aria-label", `Order ${priced.name}`);
@@ -147,6 +147,19 @@ function renderBar(products) {
   const sub = byId("gtBarSub");
   if (name) name.textContent = hero.name;
   if (sub) sub.textContent = `${rupees(hero.amountPaise)} · Free delivery · COD available`;
+}
+
+// The hero and bar buttons carry the lead pack in their href so they work with
+// no JS at all. That makes the id appear in the markup as well as here, so it
+// is written back from HERO_PACK on load — otherwise changing which pack leads
+// would quietly leave two buttons pointing at the old one.
+function syncHeroLinks() {
+  for (const id of ["gtCta", "gtBarCta"]) {
+    const el = byId(id);
+    if (!el) continue;
+    el.href = `/shop?sku=${encodeURIComponent(HERO_PACK)}`;
+    el.dataset.sku = HERO_PACK;
+  }
 }
 
 // A failure here must not leave shimmer running forever — a page that looks
@@ -171,6 +184,10 @@ function failQuietly() {
 }
 
 async function load() {
+  // Before the fetch: the buttons must point at the right pack even if the
+  // price never arrives.
+  syncHeroLinks();
+
   let payload;
   try {
     const res = await fetch("/api/shop/public-catalogue", { headers: { accept: "application/json" } });
@@ -205,12 +222,13 @@ async function load() {
   }
 }
 
-// Every Order control is a plain link to /shop, so checkout still works with
-// no JS at all. This only reports the intent on the way past — hence a capture
-// listener on the document rather than handlers bound to each button, which
-// would have to be rebound every time the pack list re-renders.
+// Every Order control is a plain link to /shop, so the offer stays reachable
+// with no JS at all — the href already carries the pack. This only reports the
+// intent on the way past, hence one listener on the document rather than
+// handlers bound to each button, which would need rebinding every time the pack
+// list re-renders.
 document.addEventListener("click", (event) => {
-  const link = event.target.closest && event.target.closest('a[href="/shop"]');
+  const link = event.target.closest && event.target.closest('a[href^="/shop"]');
   if (!link || !window.ptTrack) return;
 
   ptTrack("begin_checkout", { method: "storefront", items: [{ item_id: link.dataset.sku || HERO_PACK, quantity: 1 }] });
