@@ -1,10 +1,16 @@
 /*
  * Shared delivery-address step for physical-sticker checkout.
  *
- * Exposes window.ptCollectAddress() -> Promise<boolean>. Every "buy a physical
- * sticker" flow (per-tag premium on the dashboard + vehicle detail, and the Shop
- * tab) awaits this before opening Razorpay. Plain global script on purpose so both
- * the inline shop handler and the ES-module dashboard can call it.
+ * Exposes window.ptCollectAddress(). Every "buy a physical sticker" flow awaits
+ * this before opening Razorpay: per-tag premium on the dashboard and vehicle
+ * detail, the Shop tab, and the public storefront at /get. Plain global script
+ * on purpose, so the inline shop handler, the ES-module dashboard and the
+ * storefront's module can all call the one sheet.
+ *
+ * Resolves false if dismissed. Otherwise `true` for a signed-in owner, whose
+ * address is saved to their profile — or, called as ptCollectAddress({ guest:
+ * true }), the address object itself, because /get sells to someone with no
+ * profile to save it to and sends the address with the order instead.
  *
  * Two states, so returning buyers don't re-type an address they already gave:
  *   • No saved address  -> show the full form, save on submit.
@@ -22,6 +28,21 @@
   var resolver = null; // resolve fn of the in-flight promise
   var savedAddress = null; // last address fetched from the server this open
   var profileName = "";    // owner's profile name, used only to prefill a blank
+
+  // Guest mode: the same sheet, on a page where there is no account.
+  //
+  // /get sells to someone who has never signed in, and the address it collects
+  // is sent with the order rather than saved to a profile that does not exist.
+  // So in this mode nothing is fetched — there is no saved address to offer and
+  // no profile name to prefill — and nothing is POSTed; the address is handed
+  // back to the caller instead.
+  //
+  // A mode on this module rather than a second address sheet on the storefront.
+  // There was briefly a second one, and it was already drifting: different
+  // fields, different validation, none of the "deliver here again" behaviour.
+  // One address step, two callers, is the whole reason this file is a shared
+  // global in the first place.
+  var guestMode = false;
 
   // Inline icons (no network dependency — works offline / on flaky mobile data).
   var IC = {
@@ -202,6 +223,7 @@
       deliver: ov.querySelector("#pt-addr-deliver"),
       edit: ov.querySelector("#pt-addr-edit"),
       save: ov.querySelector("#pt-addr-save"),
+      note: ov.querySelector("#pt-addr-note"),
       inputs: {}
     };
     FIELDS.forEach(function (f) { els.inputs[f.key] = ov.querySelector("#pt-addr-" + f.key); });
@@ -287,6 +309,18 @@
     if (!els.inputs.fullName.value && profileName) {
       els.inputs.fullName.value = profileName;
     }
+    // Two lines of copy that are only true when there is an account behind the
+    // sheet. A guest is not saving anything to a profile, and telling them so
+    // would be the sheet promising something the page cannot do.
+    if (els.note) {
+      els.note.textContent = guestMode
+        ? "Used for this delivery. Your tag is activated after it arrives."
+        : "Saved to your profile — you won't need to enter it again.";
+    }
+    if (els.save) {
+      els.save.innerHTML = IC.lock + (guestMode ? "Continue to pay" : "Save &amp; continue to pay");
+    }
+
     els.title.textContent = prefill ? "Edit delivery address" : "Delivery address";
     els.sub.textContent = prefill
       ? "Update where we should ship your sticker."
@@ -300,6 +334,10 @@
     var v = readForm();
     var problem = validate(v);
     if (problem) { showErr(problem); return; }
+
+    // No account to save it to: hand the address straight back to the caller,
+    // which sends it with the order.
+    if (guestMode) { close(v); return; }
 
     els.save.disabled = true;
     var label = els.save.innerHTML;
@@ -328,11 +366,15 @@
     }
   }
 
+  // `saved` is `true` for the signed-in flow and the address object in guest
+  // mode. Passed through rather than coerced, because the guest caller needs
+  // the values — and an object is truthy, so `if (!await ptCollectAddress())`
+  // still reads the same at every existing call site.
   function close(saved) {
     if (els) els.ov.classList.remove("pt-open");
     var r = resolver;
     resolver = null;
-    if (r) r(!!saved);
+    if (r) r(saved === true ? true : (saved || false));
   }
 
   // Fetch the saved address (if any) to decide which view to show.
@@ -368,8 +410,12 @@
     els.sheet.classList.add("pt-in");
   }
 
-  // Public API: resolves true once the address is confirmed/saved, false if dismissed.
-  window.ptCollectAddress = function () {
+  // Public API. Resolves once the address is confirmed or saved, false if
+  // dismissed — `true` for a signed-in owner, and the address object itself
+  // when called as ptCollectAddress({ guest: true }) from the public
+  // storefront, which has no profile to save it to.
+  window.ptCollectAddress = function (options) {
+    guestMode = !!(options && options.guest);
     if (!els) build();
     return new Promise(function (resolve) {
       // If a sheet is somehow already open, cancel the previous waiter.
@@ -382,6 +428,16 @@
       els.form.classList.add("pt-hide");
       els.sheet.classList.remove("pt-in");
       els.ov.classList.add("pt-open");
+      // A guest has no saved address and no profile, so both lookups would be
+      // two guaranteed 401s and a slower sheet. Straight to the blank form.
+      if (guestMode) {
+        savedAddress = null;
+        profileName = "";
+        showForm(null);
+        popIn();
+        return;
+      }
+
       // Both requests go out together: the profile name is only needed for the
       // blank-form case, and waiting for it in series would delay the sheet for
       // everyone who already has an address saved.

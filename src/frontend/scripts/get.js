@@ -164,101 +164,81 @@ function syncHeroLinks() {
 
 // ── Checkout ───────────────────────────────────────────────────────────────
 //
-// Pack, then delivery details, then Razorpay. No sign-in anywhere in it: the
-// order is placed against the delivery address, and the account is created
-// later by the activation wizard, once the sticker is in the buyer's hands and
-// their number has actually been proven.
+// Pack, then delivery address, then Razorpay. No sign-in anywhere in it.
 //
-// Every amount is still the server's. This sends a productId and an address and
-// nothing else — no price, no total — so a tampered request cannot buy a ₹499
-// pack for ₹1.
+// The address step is NOT built here. window.ptCollectAddress is the sheet the
+// dashboard, the vehicle-detail page and the Shop tab already await before
+// opening Razorpay; it is loaded on this page and called with { guest: true },
+// which is the same window with nothing fetched from a profile that does not
+// exist and nothing saved back to one. It resolves with the address instead.
+//
+// Every amount is still the server's. This sends a productId and that address
+// and nothing else — no price, no total — so a tampered request cannot buy a
+// ₹499 pack for ₹1.
 
 let _sku = null;
 let _busy = false;
 
-const sheet = () => byId("gtSheet");
-
-function openSheet(sku, products) {
-  _sku = sku;
-  const p = products && products[sku];
-
-  byId("gtSheetSub").textContent = p
-    ? `${p.name} · ${rupees(p.amountPaise)} · free delivery`
-    : "Enter where the tag should be delivered.";
-
-  byId("gtErr").hidden = true;
-  byId("gtForm").hidden = false;
-  byId("gtDone").hidden = true;
-
+function showSheet() {
   byId("gtSheetBd").hidden = false;
-  sheet().hidden = false;
+  byId("gtSheet").hidden = false;
   document.body.style.overflow = "hidden";
-
-  // Focus the first field so a keyboard or screen-reader user starts inside the
-  // dialog rather than behind it.
-  const first = byId("gtForm").querySelector("input");
-  if (first) first.focus();
 }
 
-function closeSheet() {
-  if (_busy) return; // never yank the sheet out from under a payment
-  sheet().hidden = true;
+function hideSheet() {
+  if (_busy) return; // never close over a payment in flight
+  byId("gtSheet").hidden = true;
   byId("gtSheetBd").hidden = true;
   document.body.style.overflow = "";
 }
 
-function fail(message) {
-  const el = byId("gtErr");
-  el.textContent = message;
-  el.hidden = false;
+// Razorpay's own sheet reports its own failures, so this only has to speak up
+// for the two steps either side of it.
+function say(message) {
+  const note = byId("gtNote");
+  if (!note) return;
+  note.hidden = false;
+  note.textContent = message;
 }
 
-function setBusy(on, label) {
-  _busy = on;
-  const btn = byId("gtPay");
-  btn.disabled = on;
-  btn.textContent = label || "Continue to payment";
-}
-
-// The form, as the address shape the server validates.
-function readForm() {
-  const data = new FormData(byId("gtForm"));
-  const out = {};
-  for (const [k, v] of data.entries()) out[k] = String(v).trim();
-  return out;
-}
-
-async function pay(event) {
-  event.preventDefault();
+async function buy(sku) {
   if (_busy) return;
+  _sku = sku;
 
-  byId("gtErr").hidden = true;
-  setBusy(true, "Starting payment…");
+  if (typeof window.ptCollectAddress !== "function") {
+    say("The delivery step could not load. Please refresh and try again.");
+    return;
+  }
+
+  // The shared sheet. Resolves with the address, or false if dismissed —
+  // backing out here is an ordinary thing to do, not an error.
+  const address = await window.ptCollectAddress({ guest: true });
+  if (!address) return;
+
+  _busy = true;
 
   let order;
   try {
     const res = await fetch("/api/shop/guest/create-order", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ productId: _sku, address: readForm() })
+      body: JSON.stringify({ productId: sku, address })
     });
     order = await res.json();
-    // The server's message is the useful one — it names the field that is
-    // wrong ("Enter a valid 6-digit PIN code") rather than saying "invalid".
+    // The server's message names the field that is wrong rather than saying
+    // "invalid", so it is worth surfacing verbatim.
     if (!res.ok || !order.ok) throw new Error(order && order.error);
   } catch (err) {
-    setBusy(false);
-    fail((err && err.message) || "Could not start the payment. Please try again.");
+    _busy = false;
+    say((err && err.message) || "Could not start the payment. Please try again.");
     return;
   }
 
   if (typeof Razorpay !== "function") {
-    setBusy(false);
-    fail("The payment window could not load. Check your connection and try again.");
+    _busy = false;
+    say("The payment window could not load. Check your connection and try again.");
     return;
   }
-
-  setBusy(true, "Opening payment…");
 
   const rzp = new Razorpay({
     key: order.keyId,
@@ -270,13 +250,10 @@ async function pay(event) {
     image: "/images/parktag-checkout-logo.png",
     prefill: order.prefill || {},
     theme: { color: "#03162D" },
-    // Dismissing the sheet is not a failure. The order stays "created" and is
-    // handed back on the next attempt rather than minting a second one.
-    modal: {
-      ondismiss: () => setBusy(false)
-    },
+    // Dismissing is not a failure. The order stays "created" and is handed
+    // back on the next attempt rather than minting a second one.
+    modal: { ondismiss: () => { _busy = false; } },
     handler: async (response) => {
-      setBusy(true, "Confirming…");
       try {
         const res = await fetch("/api/shop/guest/verify-payment", {
           method: "POST",
@@ -292,8 +269,7 @@ async function pay(event) {
         showDone(done);
       } catch {
         // The money is taken by this point, so this must not read as a failed
-        // purchase. The webhook fulfils it regardless of what this tab does.
-        setBusy(false);
+        // purchase. The webhook fulfils the order regardless of this tab.
         showDone({ orderNumber: order.orderNumber, pending: true });
       }
     }
@@ -304,26 +280,25 @@ async function pay(event) {
 
 function showDone(done) {
   _busy = false;
-  byId("gtForm").hidden = true;
-  byId("gtDone").hidden = false;
-
   byId("gtDoneSub").textContent = done.pending
     ? `Payment received. Order ${done.orderNumber} is being confirmed — you will get a WhatsApp update shortly.`
     : `Order ${done.orderNumber} is on its way. We have sent the details to your mobile.`;
+  showSheet();
 
   if (window.ptTrack) {
     ptTrack("purchase", { transaction_id: done.orderNumber, items: [{ item_id: _sku, quantity: 1 }] });
   }
 }
 
-function wireCheckout(products) {
-  byId("gtForm").addEventListener("submit", pay);
-  byId("gtSheetX").addEventListener("click", closeSheet);
-  byId("gtSheetBd").addEventListener("click", closeSheet);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !sheet().hidden) closeSheet(); });
+function wireCheckout() {
+  byId("gtDoneX").addEventListener("click", hideSheet);
+  byId("gtSheetBd").addEventListener("click", hideSheet);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !byId("gtSheet").hidden) hideSheet();
+  });
 
-  // One listener for every Order control, including the pack buttons that are
-  // rendered after this runs.
+  // One listener for every Order control, including the pack buttons rendered
+  // after this runs. The hrefs stay real so the page still works with no JS.
   document.addEventListener("click", (event) => {
     const link = event.target.closest && event.target.closest("a[href^='/shop']");
     if (!link) return;
@@ -334,7 +309,7 @@ function wireCheckout(products) {
     if (window.ptTrack) {
       ptTrack("begin_checkout", { method: "guest", items: [{ item_id: sku, quantity: 1 }] });
     }
-    openSheet(sku, products);
+    buy(sku);
   });
 }
 
@@ -383,7 +358,7 @@ async function load() {
   renderCod(payload.codSurchargePaise || 0);
   renderPacks(payload.products);
   renderBar(payload.products);
-  wireCheckout(payload.products);
+  wireCheckout();
 
   // Fired once the prices are actually on screen, not on DOMContentLoaded, so
   // "viewed the item" means a price was seen rather than that the page began

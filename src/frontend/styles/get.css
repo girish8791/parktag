@@ -535,67 +535,6 @@
   padding: 16px var(--gt-gutter) calc(20px + env(safe-area-inset-bottom, 0px));
 }
 
-.gt-sheet-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.gt-sheet-t { margin: 0; font-size: 1.02rem; font-weight: 800; }
-
-.gt-sheet-x {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: var(--gt-ground);
-  color: var(--gt-ink-2);
-  cursor: pointer;
-}
-.gt-sheet-x svg { width: 18px; height: 18px; }
-
-.gt-sheet-s { margin: 6px 0 14px; font-size: .82rem; color: var(--gt-ink-3); }
-
-.gt-form { display: grid; gap: 11px; }
-
-.gt-f { display: grid; gap: 5px; min-width: 0; }
-.gt-f > span { font-size: .76rem; font-weight: 600; color: var(--gt-ink-2); }
-.gt-f-opt { font-weight: 500; color: var(--gt-ink-3); }
-
-.gt-f input {
-  width: 100%;
-  min-height: 46px;
-  padding: 11px 13px;
-  border: 1px solid var(--gt-line);
-  border-radius: 11px;
-  background: #fff;
-  color: var(--gt-ink);
-  /* 16px exactly. Anything smaller and iOS Safari zooms the page in when the
-     field takes focus, and does not zoom back out. */
-  font-size: 16px;
-  font-family: inherit;
-}
-.gt-f input:focus {
-  outline: none;
-  border-color: var(--gt-ink);
-  box-shadow: 0 0 0 3px rgba(3, 22, 45, .12);
-}
-
-.gt-f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-
-.gt-err {
-  margin: 2px 0 0;
-  padding: 9px 11px;
-  border-radius: 10px;
-  background: #FFF0EC;
-  border: 1px solid #FFD0C4;
-  color: #A32200;
-  font-size: .8rem;
-  line-height: 1.45;
-}
-
-.gt-pay { margin-top: 4px; }
-.gt-pay[disabled] { opacity: .65; pointer-events: none; }
-
 /* ── Confirmation ────────────────────────────────────────────────────── */
 
 .gt-done { text-align: center; padding: 14px 0 6px; }
@@ -615,6 +554,20 @@
 .gt-done-t { margin: 12px 0 0; font-size: 1.05rem; font-weight: 800; }
 .gt-done-s { margin: 7px auto 16px; max-width: 26rem; font-size: .85rem; line-height: 1.55; color: var(--gt-ink-2); }
 
+.gt-done-x {
+  display: block;
+  width: 100%;
+  margin: 10px 0 0;
+  padding: 12px;
+  border: none;
+  background: none;
+  color: var(--gt-ink-3);
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 @media (min-width: 600px) {
   .gt-sheet {
     left: 50%;
@@ -627,6 +580,3 @@
   }
 }
 
-@media (max-width: 380px) {
-  .gt-f-row { grid-template-columns: 1fr; }
-}
