@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { WhatsAppBubble } from "./components/WhatsAppBubble";
 
 export const metadata: Metadata = {
   title: "ParkTag | Smart Parking. Instant Connection.",
@@ -72,6 +73,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           synchronous tag so they can declare data-surface="scanner", which is
           the one place the fallback would be wrong.
         */}
+        {/* Mounted in the layout, not the page: the WhatsApp route should be
+            reachable from /about, /contact and the policy pages too, which is
+            where somebody with a question actually ends up. */}
+        <WhatsAppBubble />
         <Script src={`${APP_URL}/pt-analytics.js`} strategy="afterInteractive" />
       </body>
     </html>

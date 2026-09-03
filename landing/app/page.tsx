@@ -7,7 +7,6 @@ import { VehicleRotator } from "./components/VehicleRotator";
 import { GetStartedButton } from "./components/GetStartedButton";
 import { ScanTagButton } from "./components/ScanTagButton";
 import { BuyOnAmazonButton } from "./components/BuyOnAmazonButton";
-import { OrderOnWhatsAppButton } from "./components/OrderOnWhatsAppButton";
 import { HazardStripe } from "./components/HazardStripe";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
@@ -184,12 +183,21 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-10 items-center min-h-[520px]">
 
               <AnimateIn from="bottom" delay={0} className="py-12 md:py-16">
-                <h1 className="text-[2.6rem] sm:text-5xl font-extrabold text-white leading-[1.12] tracking-tight mb-6 max-w-[420px]">
-                  Make it easy for people to notify you about any issue involving your{" "}
-                  <span className="whitespace-nowrap"><VehicleRotator /></span>
+                {/* Four words for the two promises the product actually makes.
+                    The line it replaces was thirteen words whose subject was
+                    other people — "Make it easy for PEOPLE to notify you" — and
+                    which described a capability rather than naming a benefit.
+                    "Any issue" was doing no work at all. */}
+                <h1 className="text-5xl sm:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
+                  Be reachable.<br />Stay private.
                 </h1>
-                <p className="text-white/60 text-lg leading-relaxed mb-8 max-w-sm">
-                  Your phone number is never shared. Anyone with a smartphone can reach you about your parked vehicle, just by scanning a QR tag.
+                {/* One sentence. The old one ran to three lines and spent the
+                    first of them on a claim ("never shared") that the headline
+                    now makes, so it was arguing a point already won. */}
+                <p className="text-white/70 text-lg leading-relaxed mb-9 max-w-sm">
+                  One QR tag lets anyone reach you about your{" "}
+                  <span className="whitespace-nowrap"><VehicleRotator /></span>{" "}
+                  — without seeing your number.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <GetStartedButton href={`${APP_URL}/owner-login`} />
@@ -201,7 +209,6 @@ export default function Home() {
                     the only one where we see the purchase itself. */}
                 <div className="flex flex-wrap gap-3 mt-3">
                   <BuyOnAmazonButton className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 font-semibold px-5 py-2.5 rounded-xl hover:border-white/60 hover:text-white transition-colors text-sm" />
-                  <OrderOnWhatsAppButton className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 font-semibold px-5 py-2.5 rounded-xl hover:border-white/60 hover:text-white transition-colors text-sm" />
                 </div>
               </AnimateIn>
 
