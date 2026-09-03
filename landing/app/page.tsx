@@ -9,6 +9,7 @@ import { HazardStripe } from "./components/HazardStripe";
 import { SectionLabel } from "./components/SectionLabel";
 import { WhatIsParkTag } from "./components/WhatIsParkTag";
 import { TrustStrip } from "./components/TrustStrip";
+import { HowItWorksSteps } from "./components/HowItWorksSteps";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
@@ -466,56 +467,7 @@ export default function Home() {
               </p>
             </div>
 
-            <ol className="space-y-4">
-              {[
-                {
-                  title: "Stick the tag on",
-                  body: "Peel and place it on your glass. Activate it once, and your number is hidden from then on.",
-                },
-                {
-                  title: "Someone scans it",
-                  body: "Blocked them in? Lights left on? They point a phone camera at the tag. No app, no sign-up.",
-                },
-                {
-                  title: "They call or message",
-                  body: "Everything routes through ParkTag, so neither side ever sees the other's number.",
-                },
-                {
-                  title: "You stay private",
-                  body: "You decide how to answer. Reachable when it matters, private the rest of the time.",
-                },
-              ].map(({ title, body }, i, all) => {
-                const last = i === all.length - 1;
-                return (
-                  <li
-                    key={title}
-                    className={`flex items-start gap-5 sm:gap-7 rounded-2xl p-6 sm:p-7 ${
-                      last ? "bg-white" : "bg-white/[0.04] border border-white/10"
-                    }`}
-                  >
-                    {/* The number is the visual anchor of the row, so it is a
-                        solid block rather than a small outlined circle.
-                        Brand red at the exact accent #FF2700, which white text
-                        only clears at 3.8:1. That is under the 4.5:1 AA floor
-                        for normal text but over the 3:1 for large text, and
-                        large starts at 18.66px bold — so the numeral is 20px
-                        (text-xl) rather than 18px. It wanted to be bigger
-                        anyway, being the thing that anchors the row. */}
-                    <span className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FF2700] text-white font-extrabold text-xl">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="pt-1">
-                      <h3 className={`font-bold text-lg mb-1.5 ${last ? "text-[#03162D]" : "text-white"}`}>
-                        {title}
-                      </h3>
-                      <p className={`leading-relaxed ${last ? "text-[#495B7B]" : "text-white/55"}`}>
-                        {body}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+            <HowItWorksSteps />
           </div>
         </section>
 
@@ -619,7 +571,12 @@ export default function Home() {
                       so a comment asserting parity was a claim nobody was
                       checking. Same product, whichever price each storefront
                       happens to be showing. */}
-                  <BuyOnAmazonButton className="mt-3 w-full inline-flex items-center justify-center gap-2 text-center border border-gray-300 text-[#495B7B] font-semibold py-3 rounded-xl hover:border-[#03162D] hover:text-[#03162D] transition-colors text-sm" />
+                  {/* Light-card classes on a navy card: border-gray-300 and
+                      #495B7B text put the only alternative buy route at roughly
+                      2:1 against #03162D, and its hover made it darker still.
+                      White on this navy is 18.2:1 and the border at 50% alpha is
+                      visible without competing with the primary above it. */}
+                  <BuyOnAmazonButton className="mt-3 w-full inline-flex items-center justify-center gap-2 text-center border border-white/50 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-200 hover:bg-white/[0.08] hover:border-white hover:shadow-lg hover:shadow-black/30" />
                 </div>
               </AnimateIn>
 
