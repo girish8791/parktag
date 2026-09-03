@@ -69,7 +69,13 @@
     var css = [
       // Design tokens, scoped to the sheet. --ease is the one curve everything
       // here moves on: quick off the mark, long settle, no overshoot.
-      "#pt-addr-ov{--r:#FF2700;--r-press:#d81f00;--ink:#0e1220;--muted:#6b7280;--line:#ececf0;--card:#fafafb;--tint:rgba(255,39,0,.08);",
+      // --ground is #F6F8FB, the same value get.css calls --gt-ground and paints
+      // the storefront with, so the sheet sits on the page's own ground rather
+      // than a warmer white. --navy is the brand ink the CTAs are cut from.
+      // --line/--card were faintly warm (#ececf0 / #fafafb, both a touch violet);
+      // they are cool now, and the card is plain white so it lifts off --ground.
+      "#pt-addr-ov{--r:#FF2700;--r-press:#d81f00;--navy:#03162D;--navy-2:#0B2C4D;--navy-sh:rgba(3,22,45,.42);",
+      "--ink:#0e1220;--muted:#6b7280;--ground:#F6F8FB;--line:#E4E9F0;--card:#fff;--tint:rgba(255,39,0,.08);",
       "--ease:cubic-bezier(.22,1,.36,1);",
       "position:fixed;inset:0;z-index:1200;display:none;align-items:flex-end;justify-content:center;",
       "background:rgba(14,18,32,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;",
@@ -87,7 +93,7 @@
       "@keyframes pt-bd-out{from{opacity:1}to{opacity:0}}",
 
       // Sheet
-      "#pt-addr-sheet{background:#fff;width:100%;max-width:460px;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;",
+      "#pt-addr-sheet{background:var(--ground);width:100%;max-width:460px;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;",
       "border-radius:28px 28px 0 0;padding:10px 22px calc(22px + env(safe-area-inset-bottom));",
       "box-shadow:0 -18px 50px -12px rgba(14,18,32,.35);opacity:0;transform:translate3d(0,100%,0);",
       "transform-origin:bottom center;will-change:transform,opacity;}",
@@ -121,7 +127,7 @@
       "@keyframes pt-sheet-out{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,8px,0) scale(.985)}}}",
 
       // Grab handle
-      "#pt-addr-grip{width:38px;height:4px;border-radius:99px;background:#e2e2ea;margin:0 auto 16px;}",
+      "#pt-addr-grip{width:38px;height:4px;border-radius:99px;background:#D5DDE8;margin:0 auto 16px;}",
 
       // Header
       ".pt-addr-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--r);margin-bottom:9px;}",
@@ -148,25 +154,27 @@
       ".pt-addr-f.pt-half+.pt-half{margin-left:8px;}",
       ".pt-addr-f label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.01em;color:#374151;margin-bottom:5px;}",
       ".pt-req{color:var(--r);margin-left:3px;font-weight:800;}",
-      ".pt-addr-f input{width:100%;box-sizing:border-box;padding:12px 13px;border:1.5px solid #e6e6ec;border-radius:13px;font-size:.94rem;color:var(--ink);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;}",
+      ".pt-addr-f input{width:100%;box-sizing:border-box;padding:12px 13px;border:1.5px solid var(--line);border-radius:13px;font-size:.94rem;color:var(--ink);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;}",
       ".pt-addr-f input::placeholder{color:#a8adb8;}",
       ".pt-addr-f input:focus{border-color:var(--r);box-shadow:0 0 0 3.5px var(--tint);}",
       "#pt-addr-err{display:none;background:#fdecec;color:#c0271b;font-size:.8rem;font-weight:600;padding:10px 13px;border-radius:11px;margin-bottom:13px;}",
       "#pt-addr-err.pt-show{display:block;}",
 
       // Buttons
+      // Navy, not red. The glow moves with it — a navy button over a red halo
+      // reads as a mistake, and the halo was most of what made the sheet warm.
       ".pt-addr-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:16px;border:none;border-radius:16px;",
-      "background:linear-gradient(180deg,#ff3a17,var(--r));color:#fff;font-size:1rem;font-weight:800;letter-spacing:.01em;cursor:pointer;",
-      "box-shadow:0 10px 22px -8px rgba(255,39,0,.6);transition:transform .12s ease,box-shadow .2s ease,background .2s ease;-webkit-tap-highlight-color:transparent;}",
+      "background:linear-gradient(180deg,var(--navy-2),var(--navy));color:#fff;font-size:1rem;font-weight:800;letter-spacing:.01em;cursor:pointer;",
+      "box-shadow:0 10px 22px -8px var(--navy-sh);transition:transform .12s ease,box-shadow .2s ease,background .2s ease;-webkit-tap-highlight-color:transparent;}",
       ".pt-addr-primary svg{width:19px;height:19px;}",
-      ".pt-addr-primary:hover{box-shadow:0 12px 26px -8px rgba(255,39,0,.72);}",
+      ".pt-addr-primary:hover{box-shadow:0 12px 26px -8px rgba(3,22,45,.55);}",
       ".pt-addr-primary:active{transform:scale(.975);}",
       ".pt-addr-primary:disabled{opacity:.65;cursor:default;box-shadow:none;transform:none;}",
       ".pt-addr-secondary{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;margin-top:10px;",
-      "border:1.5px solid #e6e6ec;border-radius:15px;background:#fff;color:#374151;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;}",
+      "border:1.5px solid var(--line);border-radius:15px;background:#fff;color:#374151;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;}",
       ".pt-addr-secondary svg{width:16px;height:16px;color:var(--muted);}",
-      ".pt-addr-secondary:hover{background:#f7f7f9;border-color:#dcdce4;}",
-      ".pt-addr-secondary:active{background:#f0f0f3;}",
+      ".pt-addr-secondary:hover{background:#EEF3F9;border-color:#D3DCE7;}",
+      ".pt-addr-secondary:active{background:#E6ECF4;}",
       ".pt-addr-link{width:100%;padding:12px;margin-top:6px;border:none;background:none;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;border-radius:12px;-webkit-tap-highlight-color:transparent;}",
       ".pt-addr-link:hover{color:#374151;}",
 
