@@ -199,13 +199,15 @@
   min-height: 54px;
   padding: 12px 18px;
   border-radius: 14px;
-  background: var(--gt-red);
+  background: var(--gt-ink);
   color: #fff;
   font-size: clamp(.94rem, 3.6vw, 1.05rem);
   font-weight: 800;
-  box-shadow: 0 8px 20px rgba(255, 39, 0, .26);
+  /* The lift is tinted with the button's own colour, not left on the old red —
+     a red glow under a navy button reads as a rendering fault. */
+  box-shadow: 0 8px 20px rgba(3, 22, 45, .26);
 }
-.gt-cta:hover { box-shadow: 0 10px 26px rgba(255, 39, 0, .34); }
+.gt-cta:hover { box-shadow: 0 10px 26px rgba(3, 22, 45, .34); }
 
 .gt-fine { margin: 12px 0 0; font-size: .74rem; color: var(--gt-ink-3); }
 
