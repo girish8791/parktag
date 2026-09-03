@@ -216,12 +216,17 @@ export default function Home() {
                     been lost; they are on the terms line under the pricing
                     cards, which is where somebody is actually deciding. */}
                 <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-9 text-sm text-white/70">
+                  {/* Easy installation is the one that goes on a narrow screen.
+                      Three of these wrap to two lines on a phone and the third
+                      lands under a dangling divider; of the three it is also the
+                      weakest, since "no app" and "no number sharing" are the two
+                      objections a stranger actually raises. */}
                   {([
-                    ["No app required", <svg key="a" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18.5h2"/><path d="M3 3l18 18"/></svg>],
-                    ["Easy installation", <svg key="b" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h11l5 5v11a0 0 0 0 1 0 0H4z"/><path d="M15 4v5h5"/><path d="M8 13.5c2 1.5 5 1.5 7 0"/></svg>],
-                    ["No number sharing", <svg key="c" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12S6 5.5 12 5.5c1.7 0 3.2.5 4.5 1.3"/><path d="M20.4 9.2c.6.9 1.1 1.9 1.1 2.8 0 0-3.5 6.5-9.5 6.5-1.2 0-2.3-.3-3.3-.7"/><circle cx="12" cy="12" r="2.6"/><path d="M3 3l18 18"/></svg>],
-                  ] as [string, React.ReactNode][]).map(([label, icon], i) => (
-                    <li key={label} className="inline-flex items-center gap-x-4">
+                    ["No app required", "", <svg key="a" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18.5h2"/><path d="M3 3l18 18"/></svg>],
+                    ["Easy installation", "hidden sm:inline-flex", <svg key="b" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h11l5 5v11a0 0 0 0 1 0 0H4z"/><path d="M15 4v5h5"/><path d="M8 13.5c2 1.5 5 1.5 7 0"/></svg>],
+                    ["No number sharing", "", <svg key="c" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12S6 5.5 12 5.5c1.7 0 3.2.5 4.5 1.3"/><path d="M20.4 9.2c.6.9 1.1 1.9 1.1 2.8 0 0-3.5 6.5-9.5 6.5-1.2 0-2.3-.3-3.3-.7"/><circle cx="12" cy="12" r="2.6"/><path d="M3 3l18 18"/></svg>],
+                  ] as [string, string, React.ReactNode][]).map(([label, hide, icon], i) => (
+                    <li key={label} className={`items-center gap-x-4 ${hide || "inline-flex"}`}>
                       {i > 0 && <span aria-hidden="true" className="w-px h-4 bg-white/15" />}
                       <span className="inline-flex items-center gap-2">
                         <span className="text-[#FEE600]">{icon}</span>

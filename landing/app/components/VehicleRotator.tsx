@@ -23,11 +23,11 @@ export function VehicleRotator() {
     <span
       style={{
         display: "inline-block",
-        // Yellow, not the brand red. Red is now spent on "private" in the
-        // headline directly above this line, and two reds stacked would have
-        // made the rotating word compete with the one word on the page that
-        // has to land. Yellow is the caution stripe from the sticker itself.
-        color: "#FEE600",
+        // White, brighter than the white/70 of the sentence around it. The
+        // word already draws the eye by moving; colouring it as well was two
+        // signals for one job, and it put a third colour in a headline block
+        // that already spends red on "private".
+        color: "#FFFFFF",
         opacity: phase === "in" ? 1 : 0,
         transform: phase === "in" ? "translateY(0)" : "translateY(-10px)",
         transition: "opacity 320ms ease, transform 320ms ease",
