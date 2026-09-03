@@ -10,6 +10,7 @@ import { SectionLabel } from "./components/SectionLabel";
 import { WhatIsParkTag } from "./components/WhatIsParkTag";
 import { TrustStrip } from "./components/TrustStrip";
 import { HowItWorksSteps } from "./components/HowItWorksSteps";
+import { WhyBetter } from "./components/WhyBetter";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
@@ -433,6 +434,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <WhyBetter />
 
         {/* ── HOW IT WORKS ── */}
         {/*
