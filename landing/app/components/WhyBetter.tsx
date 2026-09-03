@@ -35,7 +35,7 @@ export function WhyBetter() {
           This is the one section allowed past the page's container rule. It is
           a single plate rather than a column of text, so its edges never have
           to line up with the sections above and below it. */}
-      <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl xl:max-w-[90rem] mx-auto px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-[#03162D]">
 
           {/* Feathered into the plate rather than cropped against it, so there
@@ -51,7 +51,7 @@ export function WhyBetter() {
               aria-hidden="true"
               fill
               sizes="(min-width: 1280px) 48vw, 46vw"
-              className="object-cover object-left"
+              className="object-cover object-right"
               style={{
                 maskImage:
                   "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, #000 62%)",
@@ -61,7 +61,7 @@ export function WhyBetter() {
             />
           </div>
 
-          <div className="relative px-6 py-12 sm:px-10 sm:py-14 xl:px-14 xl:py-16 lg:w-[58%] xl:w-[56%]">
+          <div className="relative px-6 py-12 sm:px-10 sm:py-14 xl:px-16 xl:py-14 lg:w-[58%] xl:w-[56%]">
             <p className="mb-6">
               <SectionLabel onDark>Why ParkTag is better</SectionLabel>
             </p>
@@ -99,10 +99,9 @@ export function WhyBetter() {
 
             {/* The row above that people skim past is the one worth saying out
                 loud: a bare QR asks a stranger to guess what it does. */}
-            <p className="mt-8 max-w-md text-sm leading-relaxed text-white/55">
-              Most tags print a QR and hope. Ours prints CALL and WHATSAPP next
-              to it, so somebody glancing at a windscreen knows what happens
-              before they scan.
+            <p className="mt-8 max-w-xl text-sm leading-relaxed text-white/55">
+              Most tags print a QR and hope. Ours prints CALL and WHATSAPP beside
+              it, so a passer-by knows what happens before they scan.
             </p>
           </div>
         </div>
