@@ -36,6 +36,28 @@
 
     <main class="gt-main">
 
+      <!-- ── Order recall ──────────────────────────────────────────────────
+           The record this buyer's own device kept.
+
+           A guest has no account, so if the tab dies between paying and the
+           confirmation screen there is nothing anywhere that connects them to
+           the order: no dashboard to sign in to, and an order number they never
+           saw. The webhook still fulfils it and it still ships — they just
+           cannot find it. So get.js writes the number here before Razorpay
+           opens, and shows this only once the server has confirmed the order
+           was really paid, which is why an abandoned checkout never produces
+           a bar claiming an order exists. -->
+      <a class="gt-recall" id="gtRecall" hidden>
+        <span class="gt-recall-i" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m3.5 7.5 8.5 4.5 8.5-4.5M12 12v9" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="gt-recall-b">
+          <strong>Your ParkTag order is on its way</strong>
+          <span id="gtRecallS"></span>
+        </span>
+        <span class="gt-recall-go" aria-hidden="true">Track &rarr;</span>
+      </a>
+
       <!-- ── Hero ──────────────────────────────────────────────────────── -->
       <section class="gt-hero" aria-labelledby="gtTitle">
         <h1 class="gt-title" id="gtTitle">

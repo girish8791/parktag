@@ -22,6 +22,7 @@ import {
   normalizeIdentifier,
   OTP_PURPOSE_COD_VERIFY
 } from "../../lib/auth/otp.js";
+import { isMetaWhatsappConfigured } from "../../lib/integrations/meta.js";
 
 // Flash-offer discount for converting a COD order to prepaid (paise). Kept
 // server-side so the ₹50 saving can't be inflated by a tampered client.
@@ -225,6 +226,27 @@ async function mintReplacementIfNeeded(collections, ownerId, order) {
 }
 
 export function registerShopRoutes(app, env) {
+  // Guest checkout has exactly one way to reach its buyer.
+  //
+  // /get sells to someone with no account, and the form collects no e-mail, so
+  // the confirmation that carries their order number is a WhatsApp to the
+  // delivery phone. Without Meta configured that message is never sent and a
+  // guest who closed the tab mid-payment has no way to find their order at all
+  // — the same silent-loss shape the Razorpay webhook secret had, and the same
+  // reason to surface it at boot rather than in a support ticket.
+  //
+  // A warning rather than a refusal to boot: unlike the webhook, this costs the
+  // buyer a notification, not the order — /get now writes the order number to
+  // the buyer's own device before payment opens, and /track-order takes it
+  // without a login. Taking the site down over it would be the larger outage.
+  if (!isMetaWhatsappConfigured(env)) {
+    app.log.warn(
+      "[shop] META_WHATSAPP_* is not configured — guest orders from /get cannot be " +
+        "confirmed to the buyer. They will still be fulfilled and shipped, and the " +
+        "order number is kept on the buyer's device, but nothing is sent to them."
+    );
+  }
+
   // Expose key ID to frontend (safe — public key)
   app.get("/api/shop/razorpay-key", async (_request, reply) => {
     if (!isRazorpayConfigured(env)) { reply.code(500); return { error: "Razorpay not configured." }; }

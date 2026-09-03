@@ -179,6 +179,102 @@ function syncHeroLinks() {
 let _sku = null;
 let _busy = false;
 
+// ── Remembering an order the buyer may never see confirmed ─────────────────
+//
+// The gap this closes: a guest has no account, so if the tab dies between the
+// payment succeeding and the confirmation screen rendering, nothing anywhere
+// ties that person to their order. It is still fulfilled — Razorpay's webhook
+// does that without the browser — and it still ships. They simply cannot find
+// it, because the only copy of the order number was on a screen they never saw,
+// and the only message that would have carried it is a WhatsApp that depends on
+// Meta being configured.
+//
+// So the number is written to this device the moment the order exists, which is
+// BEFORE Razorpay opens — the last point that is guaranteed to run no matter
+// what the buyer's browser does next. Nothing sensitive is stored: an order
+// number and the last four digits the buyer just typed, which is exactly the
+// pair /track-order already asks for and useless without each other.
+const RECALL_KEY = "pt_get_orders";
+const RECALL_TTL = 60 * 864e5; // 60 days — past any delivery, and self-clearing
+const RECALL_MAX = 5;          // rows kept on the device
+const RECALL_CHECK = 3;        // newest rows checked on a visit
+
+function recallRead() {
+  try {
+    const rows = JSON.parse(localStorage.getItem(RECALL_KEY) || "[]");
+    if (!Array.isArray(rows)) return [];
+    const live = rows
+      .filter((r) => r && r.n && r.f && Date.now() - (r.t || 0) < RECALL_TTL)
+      .slice(0, RECALL_MAX);
+    // Both limits are enforced HERE, on the way in, so they hold no matter how
+    // the stored value got there — an older build of this page, a hand-edited
+    // value, anything. Enforcing them only on write left two holes: a device
+    // where every row had expired kept them for good, because the caller
+    // returned early before pruning; and an over-long list was never trimmed
+    // until the next purchase. Writing only on a change keeps this from
+    // creating the key on a device that has never ordered.
+    if (live.length !== rows.length) recallWrite(live);
+    return live;
+  } catch {
+    return []; // private mode, storage disabled, corrupt value — never fatal
+  }
+}
+
+function recallWrite(rows) {
+  try { localStorage.setItem(RECALL_KEY, JSON.stringify(rows.slice(0, RECALL_MAX))); } catch { /* ignore */ }
+}
+
+function remember(orderNumber, address) {
+  const four = String((address && address.phone) || "").replace(/\D/g, "").slice(-4);
+  if (!orderNumber || four.length !== 4) return;
+  const rows = recallRead().filter((r) => r.n !== orderNumber);
+  rows.unshift({ n: orderNumber, f: four, t: Date.now() });
+  recallWrite(rows);
+}
+
+// Shown only for an order the SERVER agrees was paid. /track-order answers 404
+// for an order still sitting at "created", so an abandoned checkout — where the
+// buyer opened Razorpay and walked away — never produces a bar announcing an
+// order that does not exist.
+//
+// A miss is not a reason to forget the row. A payment whose webhook has not
+// landed yet also reads as 404, and dropping the record then would throw away
+// the buyer's only copy of the number at the exact moment it matters. Rows age
+// out on their own instead.
+async function showRecall() {
+  const rows = recallRead(); // prunes anything past the TTL as it reads
+  if (!rows.length) return;
+
+  for (const row of rows.slice(0, RECALL_CHECK)) {
+    let data;
+    try {
+      const res = await fetch("/api/shop/track-order", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ orderNumber: row.n, lastFour: row.f })
+      });
+      if (!res.ok) continue;
+      data = await res.json();
+    } catch {
+      return; // offline: the rows stay, and the next visit tries again
+    }
+    if (!data || !data.ok || !data.order) continue;
+
+    const bar = byId("gtRecall");
+    if (!bar) return;
+    // The status itself lives on the track page. Naming it here too would mean
+    // a second copy of its label map, and the two would drift.
+    byId("gtRecallS").textContent = data.order.productName
+      ? `${row.n} · ${data.order.productName}`
+      : row.n;
+    // Only the order number travels in the URL. The last four is the proof that
+    // opens the order, and a proof does not belong in browser history.
+    bar.href = `/track-order?order=${encodeURIComponent(row.n)}`;
+    bar.hidden = false;
+    return;
+  }
+}
+
 function showSheet() {
   byId("gtSheetBd").hidden = false;
   byId("gtSheet").hidden = false;
@@ -228,6 +324,10 @@ async function buy(sku) {
     // The server's message names the field that is wrong rather than saying
     // "invalid", so it is worth surfacing verbatim.
     if (!res.ok || !order.ok) throw new Error(order && order.error);
+    // Before the payment window opens, not after it closes. Everything from
+    // here on depends on the buyer's browser still being alive; this is the
+    // last line that does not.
+    remember(order.orderNumber, address);
   } catch (err) {
     _busy = false;
     say((err && err.message) || "Could not start the payment. Please try again.");
@@ -359,6 +459,10 @@ async function load() {
   renderPacks(payload.products);
   renderBar(payload.products);
   wireCheckout();
+
+  // After the page is usable, never in front of it. A returning buyer's order
+  // matters, but not more than the shop rendering.
+  showRecall();
 
   // Fired once the prices are actually on screen, not on DOMContentLoaded, so
   // "viewed the item" means a price was seen rather than that the page began

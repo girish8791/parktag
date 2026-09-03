@@ -126,6 +126,55 @@
   margin: 26px 0 10px;
 }
 
+/* Order recall bar. Navy, because it is a statement of fact about an order that
+   already exists — not an offer, which is what every red control here is. */
+.gt-recall {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  padding: 13px 15px;
+  border: 1px solid var(--gt-line);
+  border-radius: 16px;
+  background: var(--gt-navy-tint);
+  color: var(--gt-ink);
+  text-decoration: none;
+  transition: border-color .14s, background-color .14s;
+}
+
+.gt-recall:hover { border-color: var(--gt-ink); background: #E2EAF4; }
+
+.gt-recall-i {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--gt-card);
+  color: var(--gt-ink);
+}
+
+.gt-recall-i svg { width: 21px; height: 21px; }
+
+.gt-recall-b { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gt-recall-b strong { font-size: .88rem; font-weight: 700; letter-spacing: -.01em; }
+
+.gt-recall-b span {
+  font-size: .76rem;
+  color: var(--gt-ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gt-recall-go { flex: 0 0 auto; font-size: .8rem; font-weight: 700; color: var(--gt-ink); }
+
+@media (max-width: 400px) {
+  .gt-recall-go { display: none; }
+}
+
 /* ── Hero ────────────────────────────────────────────────────────────── */
 
 .gt-hero {
