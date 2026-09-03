@@ -216,10 +216,17 @@ export default function Home() {
               <AnimateIn from="bottom" delay={150} className="flex items-end justify-center md:justify-end pt-10">
                 <div className="relative w-full max-w-lg">
                   <div className="absolute inset-0 bg-[#FF2700]/10 blur-3xl rounded-full scale-90" />
+                  {/* The sticker's actual print artwork, both faces, rather
+                      than a render of it. rounded-3xl is dropped with it: the
+                      file has real transparency and its own rounded corners, so
+                      a CSS radius on top was clipping the artwork's corners
+                      against a shape that is not the sticker's. */}
                   <img
-                    src="/final-landing-sticker.png"
-                    alt="ParkTag brand sticker"
-                    className="relative w-full drop-shadow-2xl rounded-3xl"
+                    src="/sticker-artwork.png"
+                    alt="The ParkTag sticker, showing the scan instructions and Call and WhatsApp buttons on the left and the QR code on the right"
+                    width={1014}
+                    height={609}
+                    className="relative w-full drop-shadow-2xl"
                   />
                 </div>
               </AnimateIn>
