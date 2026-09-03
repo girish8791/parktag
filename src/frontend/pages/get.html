@@ -111,8 +111,25 @@
 
       <!-- ── The tag ───────────────────────────────────────────────────── -->
       <h2 class="gt-h2">The tag</h2>
+      <!-- The finished artwork, NOT org-parktag-sticker.svg.
+           That file is the print template: its QR area is a bare
+           <rect fill="white" stroke="black"/> with nothing inside, because a
+           real per-tag code is placed there at print time. Rendered on a web
+           page it is an empty box, which is exactly how it looked here. This
+           PNG is the brand asset with a code drawn in, copied byte-identical
+           from landing/public/brand-guideline/assets/stickers/.
+
+           Dimensions are stated so the row does not collapse and reflow when
+           a 247KB image finishes decoding. -->
       <figure class="gt-shot">
-        <img src="/images/org-parktag-sticker.svg" alt="The ParkTag windscreen sticker: scan the code to contact the vehicle owner" />
+        <img
+          src="/images/parktag-sticker.png"
+          width="1585"
+          height="987"
+          loading="lazy"
+          decoding="async"
+          alt="The ParkTag windscreen sticker: scan the code to contact the vehicle owner"
+        />
         <figcaption class="gt-shot-c">Sticks inside the windscreen. Scannable from outside.</figcaption>
       </figure>
 
