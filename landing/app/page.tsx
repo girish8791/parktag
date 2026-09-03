@@ -204,6 +204,32 @@ export default function Home() {
                   <span className="whitespace-nowrap"><VehicleRotator /></span>,
                   without seeing your number.
                 </p>
+
+                {/* Three properties of the product, under the sentence that
+                    describes it and above the button, so the objections are
+                    answered before the price is asked for. All three are
+                    checkable: the scanner needs no app (it opens a webpage),
+                    the tag is peel-and-stick on glass, and the number is never
+                    exposed in any tier — callEntitlement() blocks the call
+                    rather than placing an unmasked one.
+                    The delivery and COD facts that used to sit here have not
+                    been lost; they are on the terms line under the pricing
+                    cards, which is where somebody is actually deciding. */}
+                <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-9 text-sm text-white/70">
+                  {([
+                    ["No app required", <svg key="a" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18.5h2"/><path d="M3 3l18 18"/></svg>],
+                    ["Easy installation", <svg key="b" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h11l5 5v11a0 0 0 0 1 0 0H4z"/><path d="M15 4v5h5"/><path d="M8 13.5c2 1.5 5 1.5 7 0"/></svg>],
+                    ["No number sharing", <svg key="c" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12S6 5.5 12 5.5c1.7 0 3.2.5 4.5 1.3"/><path d="M20.4 9.2c.6.9 1.1 1.9 1.1 2.8 0 0-3.5 6.5-9.5 6.5-1.2 0-2.3-.3-3.3-.7"/><circle cx="12" cy="12" r="2.6"/><path d="M3 3l18 18"/></svg>],
+                  ] as [string, React.ReactNode][]).map(([label, icon], i) => (
+                    <li key={label} className="inline-flex items-center gap-x-4">
+                      {i > 0 && <span aria-hidden="true" className="w-px h-4 bg-white/15" />}
+                      <span className="inline-flex items-center gap-2">
+                        <span className="text-[#FEE600]">{icon}</span>
+                        {label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
                 {/* One button, and it names the price. "Get Started" pointed at
                     a login screen, which is the wrong first destination for
                     someone who has never heard of the product, and is why this
@@ -232,15 +258,6 @@ export default function Home() {
                   </a>
                 </div>
 
-                {/* Three facts, not three claims. Each is checkable in the
-                    checkout: ₹499 is the pt-car-2 SKU, delivery is free on all
-                    orders, COD exists with the ₹50 surcharge the FAQ states.
-                    The reference row for this had "950,000+ tags active" and
-                    "Best seller on Amazon", which are the kind of numbers a
-                    stranger can disprove in one search. */}
-                <p className="mt-5 text-sm text-white/45">
-                  Pack of 2 · Free delivery · COD available
-                </p>
 
                 {/* The two routes we would rather a sale did not take, kept
                     reachable and visibly minor. */}

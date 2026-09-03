@@ -20,14 +20,24 @@ export function FloatingActions() {
   return (
     // z-40 sits above the page and deliberately below the scanner overlay at
     // z-[100], so the cluster is not floating over its own open camera.
+    // Full width so Scan sits in the middle of the viewport rather than in the
+    // middle of the pair — with WhatsApp beside it in a flex row, centring the
+    // row pushed Scan off-centre by half the bubble. WhatsApp is taken out of
+    // the flow and pinned right instead, so the primary control lands on the
+    // device's centre line at every width.
+    //
+    // pointer-events-none on the strip because it spans the whole screen and
+    // would otherwise swallow every click along the bottom of the page; the two
+    // controls opt back in.
     <div
-      className="fixed z-40 right-5 flex items-center gap-3"
+      className="fixed inset-x-0 z-40 flex items-center justify-center px-5 pointer-events-none"
       style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
     >
       <ScanTagButton
         appUrl={APP_URL}
         label="Scan QR to Call"
         className="
+          pointer-events-auto
           group inline-flex items-center gap-2.5
           rounded-full bg-[#FF2700] hover:bg-[#D92200]
           pl-5 pr-6 py-3.5
@@ -37,7 +47,9 @@ export function FloatingActions() {
           focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40
         "
       />
-      <WhatsAppBubble />
+      <div className="pointer-events-auto absolute right-5">
+        <WhatsAppBubble />
+      </div>
     </div>
   );
 }

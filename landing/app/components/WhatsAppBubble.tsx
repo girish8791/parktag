@@ -79,6 +79,9 @@ export function WhatsAppBubble() {
         transition-colors
         focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50
       "
+      style={{ backgroundColor: GREEN }}
+      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = GREEN_HOVER; }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = GREEN; }}
     >
       <WhatsAppGlyph />
       <span
