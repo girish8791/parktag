@@ -231,6 +231,38 @@ export function registerShopRoutes(app, env) {
     return { keyId: env.razorpayKeyId };
   });
 
+  // The same price list, for people who have not signed in yet.
+  //
+  // /get is a shop window: it has to show a price to somebody who has never
+  // given us a phone number. Every buy button on the marketing site currently
+  // lands on a login screen BEFORE a single price is visible, which asks the
+  // visitor to identify themselves before they learn what anything costs.
+  // See docs/SHOP_LOGIN_WALL.md.
+  //
+  // Serving it from SHOP_PRODUCTS rather than letting the page hard-code its
+  // own numbers is the whole point. Prices are already written down in three
+  // places — the catalog here, the dashboard shop's display list, and the
+  // marketing site — and they have already drifted apart once. A storefront
+  // that quotes a price the checkout does not charge is the worst of the four
+  // places for that to happen, because it is the one a stranger sees first.
+  //
+  // Nothing here is secret: it is a shop's price list, and the COD surcharge is
+  // disclosed for the same reason the pack sheet discloses it — a buyer must
+  // not agree to one figure and be asked for a higher one at the door. What is
+  // deliberately NOT here is anything about a session, an owner or a tag.
+  app.get(
+    "/api/shop/public-catalogue",
+    { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } },
+    async () => {
+      const products = {};
+      for (const [id, product] of Object.entries(SHOP_PRODUCTS)) {
+        products[id] = { name: product.name, amountPaise: Math.round(product.amount * 100) };
+      }
+
+      return { ok: true, products, codSurchargePaise: COD_SURCHARGE_PAISE };
+    }
+  );
+
   // The prices the checkout is allowed to show.
   //
   // The pack sheet used to carry its OWN hard-coded copy of the catalog and had

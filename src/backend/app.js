@@ -69,6 +69,7 @@ const stickerPrintPage = path.join(pagesRoot, "admin/sticker-print.html");
 const registerOwnerPage = path.join(pagesRoot, "owner/register.html");
 const ownerLoginPage = path.join(pagesRoot, "owner/login.html");
 const hubPage = path.join(pagesRoot, "hub.html");
+const getPage = path.join(pagesRoot, "get.html");
 const forgotPasswordPage = path.join(pagesRoot, "owner/forgot-password.html");
 const resetPasswordPage = path.join(pagesRoot, "owner/reset-password.html");
 const ownerVerifyPage = path.join(pagesRoot, "owner/verify.html");
@@ -860,6 +861,26 @@ export async function buildApp() {
       return reply.redirect("/owner-login?next=shop");
     }
     return reply.redirect("/owner-welcome?shop=1");
+  });
+
+  // The shop window. Deliberately public, and deliberately NOT /shop.
+  //
+  // /shop above is an intent — "take me to buying" — and it resolves to the
+  // dashboard's shop tab once there is a session to resolve it with. This is a
+  // page: what the product is, what it costs, what arrives in the post. It has
+  // to answer those for somebody who has never signed in, because every buy
+  // button on the marketing site currently lands on a login screen before a
+  // single price is visible (docs/SHOP_LOGIN_WALL.md). Asking a stranger to
+  // hand over a phone number before telling them the price inverts the order
+  // of a purchase.
+  //
+  // Its Order buttons still go to /shop, so the checkout, the session and the
+  // order model are untouched — what moves is only WHEN the sign-in is asked
+  // for: after the visitor knows what they are buying, rather than before.
+  app.get("/get", async (_request, reply) => {
+    const html = await fs.readFile(getPage, "utf8");
+    reply.type("text/html");
+    return html;
   });
 
   app.get("/register-owner", async (_request, reply) => {
