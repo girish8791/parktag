@@ -527,14 +527,29 @@ export default function Home() {
                   <a href={`${APP_URL}/shop`} className="block text-center bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold py-3 rounded-xl transition-colors text-sm">
                     Get Duo Pack
                   </a>
-                  {/* Duo Pack only. It is the same pack of 2 that the Amazon
-                      listing sells, so this is the one card where the two buy
-                      paths are the same product at the same price. */}
+                  {/* Duo Pack only — it is the same pack of 2 the Amazon
+                      listing sells. Deliberately no longer claiming the two are
+                      "at the same price": Amazon's shown price moves with their
+                      own discounting and has been observed below the ₹499 here,
+                      so a comment asserting parity was a claim nobody was
+                      checking. Same product, whichever price each storefront
+                      happens to be showing. */}
                   <BuyOnAmazonButton className="mt-3 w-full inline-flex items-center justify-center gap-2 text-center border border-gray-300 text-[#495B7B] font-semibold py-3 rounded-xl hover:border-[#03162D] hover:text-[#03162D] transition-colors text-sm" />
                 </div>
               </AnimateIn>
 
             </div>
+
+            {/* The terms a stranger weighing up ₹499 wants before committing,
+                beside the buttons rather than in a footer link and an FAQ they
+                may never open. Cold ad traffic has none of the community trust
+                that carried the launch. */}
+            <p className="mt-8 text-center text-sm text-[#495B7B]">
+              Free delivery across India · Cash on Delivery available (+₹50) ·{" "}
+              <Link href="/refund" className="underline underline-offset-4 decoration-[#495B7B]/40 hover:text-[#03162D] hover:decoration-[#03162D] transition-colors">
+                7-day replacement if damaged or faulty
+              </Link>
+            </p>
 
             {/* Fleet */}
             <AnimateIn delay={180}>
