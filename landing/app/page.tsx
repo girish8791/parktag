@@ -189,26 +189,28 @@ export default function Home() {
                     which described a capability rather than naming a benefit.
                     "Any issue" was doing no work at all. */}
                 <h1 className="text-5xl sm:text-6xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
-                  Be reachable.<br />Stay private.
+                  Be reachable.<br />Stay{" "}
+                  <span className="text-[#FF2700]">private.</span>
                 </h1>
                 {/* One sentence. The old one ran to three lines and spent the
                     first of them on a claim ("never shared") that the headline
                     now makes, so it was arguing a point already won. */}
                 <p className="text-white/70 text-lg leading-relaxed mb-9 max-w-sm">
                   One QR tag lets anyone reach you about your{" "}
-                  <span className="whitespace-nowrap"><VehicleRotator /></span>{" "}
-                  — without seeing your number.
+                  <span className="whitespace-nowrap"><VehicleRotator /></span>,
+                  without seeing your number.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <GetStartedButton href={`${APP_URL}/owner-login`} />
                   <ScanTagButton appUrl={APP_URL} />
                 </div>
-                {/* Second row, deliberately quieter than the row above. These
-                    are alternative buy paths, not the primary one — the shop we
-                    own is still the route we want most people on, because it is
-                    the only one where we see the purchase itself. */}
-                <div className="flex flex-wrap gap-3 mt-3">
-                  <BuyOnAmazonButton className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 font-semibold px-5 py-2.5 rounded-xl hover:border-white/60 hover:text-white transition-colors text-sm" />
+                {/* A link, not a third button. An outlined button sitting beside
+                    two real buttons reads as a third equal option, and this is
+                    the route we least want the sale to take: Amazon keeps a cut
+                    and the purchase event never reaches our own analytics. */}
+                <div className="flex flex-wrap items-center gap-x-4 mt-6">
+                  <span className="text-white/35 text-sm">Or buy on</span>
+                  <BuyOnAmazonButton className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors" />
                 </div>
               </AnimateIn>
 
@@ -227,12 +229,15 @@ export default function Home() {
 
         </section>
 
-        {/* The band caps every dark section where it meets a light one. Used as
-            a rule rather than decoration, so it reads as the brand's mark
-            instead of three unrelated flourishes. */}
-        <HazardStripe />
-
         <Marquee />
+
+        {/* The band caps every dark section where it meets a light one. It sits
+            BELOW the marquee, not above it: hero and marquee are both navy, so
+            a band between them was dividing two halves of the same dark block
+            and left the real seam, marquee into the white features section,
+            undressed. Used as a rule rather than decoration, so it reads as the
+            brand's mark instead of three unrelated flourishes. */}
+        <HazardStripe />
 
         {/* ── SPECIAL FEATURES ── */}
         <section id="features" className="bg-white py-14">
@@ -378,7 +383,7 @@ export default function Home() {
                   A stranger reaches you.<br />Your number stays hidden.
                 </h2>
                 <p className="text-white/55 leading-relaxed text-[15px] mb-8">
-                  ParkTag lets anyone contact a parked vehicle owner instantly, through a masked call or WhatsApp — without ever seeing the owner's private phone number.
+                  ParkTag lets anyone contact a parked vehicle owner instantly, through a masked call or WhatsApp, without ever seeing the owner's private phone number.
                 </p>
                 <div className="flex flex-col gap-3">
                   {["No app needed to scan", "Owner's number never exposed", "Works on any phone camera", "Owner controls tag on / off"].map((point) => (
@@ -611,7 +616,7 @@ export default function Home() {
                 <a href={`${APP_URL}/shop`} className="inline-block bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold px-8 py-4 rounded-xl transition-colors text-base">
                   Get Your ParkTag →
                 </a>
-                <BuyOnAmazonButton className="inline-flex items-center justify-center gap-2 border border-white/30 text-white/80 font-semibold px-8 py-4 rounded-xl hover:border-white hover:text-white transition-colors text-base" />
+                <BuyOnAmazonButton className="inline-flex items-center gap-1.5 text-base text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors" />
               </div>
               <p className="text-white/25 text-sm mt-4">Starting at ₹299 · Ships across India · 1-year subscription included</p>
             </AnimateIn>

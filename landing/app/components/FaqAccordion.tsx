@@ -40,7 +40,7 @@ const FAQS = [
     // is no checkout and no billing job behind tag.callSubscription. Naming a
     // figure here would be inventing one.
     q: "What happens after the first year?",
-    a: "Every tag includes one year of masked calling. After that, the tag keeps working — anyone who scans it can still reach you and leave a message, and your number stays private exactly as before. The one thing that pauses is the masked phone call, until you renew. Renewals are not on sale yet; when they are, you will be able to switch calling back on from your dashboard.",
+    a: "Every tag includes one year of masked calling. After that, the tag keeps working. Anyone who scans it can still reach you and leave a message, and your number stays private exactly as before. The one thing that pauses is the masked phone call, until you renew. Renewals are not on sale yet; when they are, you will be able to switch calling back on from your dashboard.",
   },
   {
     // The refund policy already covers defects; it was reachable only from a

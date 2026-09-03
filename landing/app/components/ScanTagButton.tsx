@@ -180,7 +180,7 @@ export function ScanTagButton({ appUrl }: { appUrl: string }) {
       const Detector = getBarcodeDetectorCtor();
       if (!Detector) {
         setStatus(
-          "Live scanning isn't supported on this browser. Open your phone's camera app and point it at the tag's QR — it opens the same page."
+          "Live scanning isn't supported on this browser. Open your phone's camera app and point it at the tag's QR. It opens the same page."
         );
         return;
       }
@@ -190,7 +190,7 @@ export function ScanTagButton({ appUrl }: { appUrl: string }) {
         detector = new Detector({ formats: ["qr_code"] });
       } catch {
         setStatus(
-          "Live scanning isn't supported on this browser. Open your phone's camera app and point it at the tag's QR — it opens the same page."
+          "Live scanning isn't supported on this browser. Open your phone's camera app and point it at the tag's QR. It opens the same page."
         );
         return;
       }
@@ -239,11 +239,11 @@ export function ScanTagButton({ appUrl }: { appUrl: string }) {
           const url = resolveTagUrl(codes[0]?.rawValue ?? "", appUrl);
           if (url) {
             doneRef.current = true;
-            setStatus("Tag found — opening…");
+            setStatus("Tag found, opening…");
             stopStream();
             window.location.href = url;
           } else {
-            setStatus("That QR isn't a ParkTag — try another.");
+            setStatus("That QR isn't a ParkTag. Try another.");
           }
         } catch {
           // Frame not ready yet; the next tick retries.
