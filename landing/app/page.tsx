@@ -622,7 +622,11 @@ export default function Home() {
                 beside the buttons rather than in a footer link and an FAQ they
                 may never open. Cold ad traffic has none of the community trust
                 that carried the launch. */}
-            <p className="mt-8 text-center text-sm text-[#495B7B]">
+            {/* mb matters as much as mt here: this sits between the pricing
+                cards and the Fleet block, and with only a top margin the Fleet
+                card butted straight into it. It belongs to the cards above, so
+                the gap below it is the larger of the two. */}
+            <p className="mt-8 mb-14 text-center text-sm text-[#495B7B]">
               Free delivery across India · Cash on Delivery available (+₹50) ·{" "}
               <Link href="/refund" className="underline underline-offset-4 decoration-[#495B7B]/40 hover:text-[#03162D] hover:decoration-[#03162D] transition-colors">
                 7-day replacement if damaged or faulty
