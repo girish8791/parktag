@@ -21,8 +21,9 @@ import {
 // rather than subtle. FA Pro has the weights; this is what the free set can do
 // honestly.
 //
-// The hover fills the tile instead of the glyph. That is the caution yellow off
-// the sticker, and dark navy on it measures 14.3:1.
+// Hover is a colour change on the glyph itself, no container. The icons scale
+// with the viewport so they carry the row on a wide screen without needing a
+// box drawn around them to give them presence.
 const FEATURES: [string, IconDefinition][] = [
   ["Instant Scan Alert", faBell],
   ["Anonymous Chat", faCommentDots],
@@ -43,17 +44,18 @@ export function FeatureIcons() {
     <div className="grid grid-cols-4 gap-y-8 sm:gap-y-10 gap-x-4 sm:gap-x-8">
       {FEATURES.map(([label, icon]) => (
         <div key={label} className="group flex flex-col items-center gap-3 text-center">
-          <span
-            className="
-              flex h-12 w-12 items-center justify-center rounded-2xl
-              border border-[#E3E8EF] bg-white text-[#495B7B]
-              transition-colors duration-200
-              group-hover:border-[#FEE600] group-hover:bg-[#FEE600] group-hover:text-[#03162D]
-            "
-          >
-            <FontAwesomeIcon icon={icon} className="h-[19px] w-[19px]" />
-          </span>
-          <span className="text-[11px] font-medium leading-tight text-[#495B7B] transition-colors duration-200 group-hover:text-[#03162D]">
+          {/* No tile. The icon grows with the viewport instead: 24px on a
+              phone where four across is already tight, 40px on a desktop where
+              the cells are ~250px wide and a small glyph floating in one reads
+              as an afterthought.
+              Hover goes red rather than the caution yellow. Yellow on white is
+              1.3:1 — it would disappear. Red on white is 3.8:1, which clears
+              the 3:1 an icon needs. */}
+          <FontAwesomeIcon
+            icon={icon}
+            className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-[#495B7B] transition-colors duration-200 group-hover:text-[#FF2700]"
+          />
+          <span className="text-[11px] sm:text-xs font-medium leading-tight text-[#495B7B] transition-colors duration-200 group-hover:text-[#03162D]">
             {label}
           </span>
         </div>

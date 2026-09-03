@@ -6,27 +6,31 @@
 // three sizes, two colours, three letter spacings, which is what made the page
 // read as assembled rather than designed.
 //
-// Filled red with white text. The red is --pt-red-600 #D92200 rather than the
-// accent #FF2700: white on the accent measures 3.8:1, under the 4.5:1 AA floor
-// for text this small, while #D92200 measures 5.0:1. The two are hard to tell
-// apart side by side, and the guideline already uses #D92200 as the accent's
-// hover, so it is not a colour invented for this.
+// Navy rather than red. Red is the accent and the guideline is firm that it is
+// "the single accent — signal, never decoration"; a section label appears six
+// times down the page, which makes it chrome, not signal. Spending red on it
+// competed with the thing red is for, which is the buy button. Navy is the
+// guideline's --pt-navy-800, described as "ink".
 //
-// `tone="dark"` is for the navy sections, where a filled red pill on #03162D
-// works but the same border treatment would not. Same fill, so the label reads
-// identically down the page regardless of what it is sitting on.
+// `onDark` inverts for the navy sections. A navy pill on a navy background is
+// invisible, so it flips to a white fill with navy text: the same object,
+// same weight in the hierarchy, read against whatever it sits on. Both
+// directions measure 18.2:1.
 export function SectionLabel({
   children,
+  onDark = false,
   className = "",
 }: {
   children: React.ReactNode;
+  onDark?: boolean;
   className?: string;
 }) {
   return (
     <span
       className={
-        "inline-flex items-center rounded-full bg-[#D92200] px-4 py-1.5 " +
-        "text-[11px] font-bold uppercase tracking-[0.18em] text-white " +
+        "inline-flex items-center rounded-full px-4 py-1.5 " +
+        "text-[11px] font-bold uppercase tracking-[0.18em] " +
+        (onDark ? "bg-white text-[#03162D] " : "bg-[#03162D] text-white ") +
         className
       }
     >

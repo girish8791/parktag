@@ -429,7 +429,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-14 lg:gap-24 items-start">
 
               <AnimateIn from="left">
-                <p className="mb-4"><SectionLabel>How It Works</SectionLabel></p>
+                <p className="mb-4"><SectionLabel onDark>How It Works</SectionLabel></p>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6 tracking-tight leading-tight">
                   A stranger reaches you.<br />Your number stays hidden.
                 </h2>
