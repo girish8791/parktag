@@ -304,9 +304,10 @@ export default function Home() {
               moves.
               inset-x-0 rather than a width, so it runs the full page rather
               than the hero's container. z-30 puts it above both sections and
-              above the trust plate, which is z-10 — the band reads as a
-              physical strip laid across the seam and over anything on it. */}
-          <HazardStripe className="absolute inset-x-0 bottom-0 translate-y-1/2 z-30 shadow-[0_6px_16px_rgba(1,13,26,0.35)]" />
+              the white section below, but BELOW the trust plate at z-20. The
+              band is the layer the plate is resting on, not something laid over
+              the top of it: at z-30 it ran straight through the labels. */}
+          <HazardStripe className="absolute inset-x-0 bottom-0 translate-y-1/2 z-10 shadow-[0_6px_16px_rgba(1,13,26,0.35)]" />
 
         </section>
 
@@ -318,7 +319,7 @@ export default function Home() {
             Two values because the strip is two rows until lg and one row after,
             so "half its height" is a different number on each. */}
         <div className="bg-white">
-          <div className="relative z-10 -mt-[76px] lg:-mt-[46px]">
+          <div className="relative z-20 -mt-[76px] lg:-mt-[46px]">
             <TrustStrip />
           </div>
         </div>
