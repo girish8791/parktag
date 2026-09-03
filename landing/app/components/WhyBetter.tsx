@@ -27,10 +27,15 @@ const ROWS: [string, string, string][] = [
 export function WhyBetter() {
   return (
     <section className="bg-white py-20 sm:py-28">
-      {/* 6xl rather than the page's usual 5xl. The table needs seven rows
-          of three columns and the photograph needs enough width not to be
-          cropped to a sliver, and at 5xl one of the two was always losing. */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      {/* Wider than the page's usual 5xl, and wider again on a large screen.
+          Seven rows of three columns and a photograph that should not be
+          cropped to a sliver compete for the same width; 5xl always starved one
+          of them. 7xl at xl gives the table room to breathe and the hand its
+          full height rather than a centre crop.
+          This is the one section allowed past the page's container rule. It is
+          a single plate rather than a column of text, so its edges never have
+          to line up with the sections above and below it. */}
+      <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-[#03162D]">
 
           {/* Feathered into the plate rather than cropped against it, so there
@@ -39,13 +44,13 @@ export function WhyBetter() {
               navy meeting near-black rather than navy meeting a cut-out — which
               is why it works here and the artwork on white did not.
               Hidden below lg, where it would take width the table needs. */}
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] lg:block">
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] xl:w-[48%] lg:block">
             <Image
               src="/pack-card-in-hand.png"
               alt=""
               aria-hidden="true"
               fill
-              sizes="46vw"
+              sizes="(min-width: 1280px) 48vw, 46vw"
               className="object-cover object-left"
               style={{
                 maskImage:
@@ -56,7 +61,7 @@ export function WhyBetter() {
             />
           </div>
 
-          <div className="relative px-6 py-12 sm:px-10 sm:py-14 lg:w-[58%]">
+          <div className="relative px-6 py-12 sm:px-10 sm:py-14 xl:px-14 xl:py-16 lg:w-[58%] xl:w-[56%]">
             <p className="mb-6">
               <SectionLabel onDark>Why ParkTag is better</SectionLabel>
             </p>
@@ -72,8 +77,8 @@ export function WhyBetter() {
               <tbody>
                 {ROWS.map(([feature, ours, theirs]) => (
                   <tr key={feature} className="border-b border-white/[0.07] last:border-0">
-                    <td className="py-4 pr-4 text-sm text-white/70">{feature}</td>
-                    <td className="py-4 px-3">
+                    <td className="py-4 xl:py-5 pr-4 text-sm text-white/70">{feature}</td>
+                    <td className="py-4 xl:py-5 px-3">
                       <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
                         {/* The tick is the same green used for the WhatsApp
                             route, not a new one. */}
@@ -81,7 +86,7 @@ export function WhyBetter() {
                         {ours}
                       </span>
                     </td>
-                    <td className="py-4 pl-3">
+                    <td className="py-4 xl:py-5 pl-3">
                       <span className="inline-flex items-center gap-2 text-sm text-white/45">
                         <FontAwesomeIcon icon={faXmark} className="h-3.5 w-3.5 shrink-0 text-white/30" />
                         {theirs}
