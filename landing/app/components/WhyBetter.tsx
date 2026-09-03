@@ -27,31 +27,36 @@ const ROWS: [string, string, string][] = [
 export function WhyBetter() {
   return (
     <section className="bg-white py-20 sm:py-28">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      {/* 6xl rather than the page's usual 5xl. The table needs seven rows
+          of three columns and the photograph needs enough width not to be
+          cropped to a sliver, and at 5xl one of the two was always losing. */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-[#03162D]">
 
-          {/* The image is feathered into the plate rather than cropped against
-              it, so there is no hard edge where a photograph stops and the card
-              begins. Hidden below lg, where it would take half the width the
-              table needs. */}
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block">
+          {/* Feathered into the plate rather than cropped against it, so there
+              is no hard edge where the photograph stops and the card begins.
+              This shot carries its own dark car interior, so the fade lands on
+              navy meeting near-black rather than navy meeting a cut-out — which
+              is why it works here and the artwork on white did not.
+              Hidden below lg, where it would take width the table needs. */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] lg:block">
             <Image
-              src="/sticker-artwork.png"
+              src="/pack-card-in-hand.png"
               alt=""
               aria-hidden="true"
               fill
-              sizes="42vw"
+              sizes="46vw"
               className="object-cover object-left"
               style={{
                 maskImage:
-                  "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.55) 38%, #000 78%)",
+                  "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, #000 62%)",
                 WebkitMaskImage:
-                  "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.55) 38%, #000 78%)",
+                  "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, #000 62%)",
               }}
             />
           </div>
 
-          <div className="relative px-6 py-12 sm:px-10 sm:py-14 lg:w-[62%]">
+          <div className="relative px-6 py-12 sm:px-10 sm:py-14 lg:w-[58%]">
             <p className="mb-6">
               <SectionLabel onDark>Why ParkTag is better</SectionLabel>
             </p>
