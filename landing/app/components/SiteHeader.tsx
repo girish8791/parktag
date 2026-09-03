@@ -397,7 +397,7 @@ export function SiteHeader({ defaultDark = true }: { defaultDark?: boolean }) {
             <a href="#faq" onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">FAQ</a>
 
             <div className="mt-5 flex flex-col gap-3">
-              <a href={`${APP_URL}/owner-login`} onClick={navigateSmoothly(`${APP_URL}/owner-login`)} className="text-center py-3 rounded-xl border-2 border-[#03162D] text-[#03162D] font-bold text-sm hover:bg-[#03162D] hover:text-white transition-colors">Login</a>
+              <a href={`${APP_URL}/owner-login`} onClick={navigateSmoothly(`${APP_URL}/owner-login`)} className="text-center py-3 rounded-xl border-2 border-[#FF2700] text-[#FF2700] font-bold text-sm hover:bg-[#FF2700] hover:text-white transition-colors">Login</a>
               <a href={`${APP_URL}/shop`} onClick={closeAll} className="text-center py-3 rounded-xl bg-[#FF2700] text-white font-bold text-sm hover:bg-[var(--red-hover)] transition-colors">Order Now</a>
               {/* Alternative buy paths, ranked below Order Now on purpose: the
                   shop is ours and is the only route where we see the purchase. */}

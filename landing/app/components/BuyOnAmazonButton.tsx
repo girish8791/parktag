@@ -38,7 +38,7 @@ export function BuyOnAmazonButton({ className, style }: { className?: string; st
       }}
       className={
         className ??
-        "inline-flex items-center justify-center gap-2 border-2 border-[#03162D] text-[#03162D] font-bold px-6 py-3 rounded-xl hover:bg-[#03162D] hover:text-white transition-colors text-sm"
+        "inline-flex items-center justify-center gap-2 border-2 border-[#FF2700] text-[#FF2700] font-bold px-6 py-3 rounded-xl hover:bg-[#FF2700] hover:text-white transition-colors text-sm"
       }
     >
       <FontAwesomeIcon icon={faAmazon} className="w-4 h-4 shrink-0" />

@@ -6,6 +6,7 @@ import { VehicleRotator } from "./components/VehicleRotator";
 import { GetStartedButton } from "./components/GetStartedButton";
 import { BuyOnAmazonButton } from "./components/BuyOnAmazonButton";
 import { HazardStripe } from "./components/HazardStripe";
+import { SectionLabel } from "./components/SectionLabel";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
@@ -306,8 +307,8 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
 
             {/* Section label */}
-            <p className="text-center text-[11px] font-medium tracking-[0.28em] text-[#495B7B] uppercase mb-10">
-              Some Special Features
+            <p className="text-center mb-10">
+              <SectionLabel>Some Special Features</SectionLabel>
             </p>
 
             {/* Four across at every width, so the eight items always read as two
@@ -412,7 +413,7 @@ export default function Home() {
                 <p className="text-[#495B7B] leading-relaxed mb-8 text-[15px]">
                   Most solutions need both parties on the same app. ParkTag doesn&apos;t. Whoever is trying to reach you just points their phone camera at your tag. That&apos;s it.
                 </p>
-                <a href={`${APP_URL}/shop`} className="inline-flex items-center bg-[#03162D] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#03162D] transition-colors text-sm">
+                <a href={`${APP_URL}/shop`} className="inline-flex items-center bg-[#FF2700] hover:bg-[#D92200] text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
                   Order your tag →
                 </a>
               </AnimateIn>
@@ -519,7 +520,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
             <AnimateIn>
-              <p className="text-xs font-bold text-[#FF2700] tracking-widest uppercase mb-3">Pricing</p>
+              <p className="mb-3"><SectionLabel>Pricing</SectionLabel></p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#03162D] mb-2 tracking-tight">Buy your ParkTag</h2>
               <p className="text-[#495B7B] mb-12">Every premium tag includes a 1-year subscription. Shipped across India.</p>
             </AnimateIn>
@@ -561,7 +562,7 @@ export default function Home() {
                     ))}
                   </ul>
 
-                  <a href={`${APP_URL}/shop`} className="block text-center border-2 border-[#03162D] text-[#03162D] font-bold py-3 rounded-xl hover:bg-[#03162D] hover:text-white transition-colors text-sm">
+                  <a href={`${APP_URL}/shop`} className="block text-center border-2 border-[#FF2700] text-[#FF2700] font-bold py-3 rounded-xl hover:bg-[#FF2700] hover:text-white transition-colors text-sm">
                     Get Solo Tag
                   </a>
                 </div>
@@ -650,7 +651,7 @@ export default function Home() {
                     configured silently does nothing. Routed to the contact page
                     instead, via next/link so it prefetches and navigates
                     client-side like every other internal link on the site. */}
-                <Link href="/contact" className="flex-shrink-0 text-sm font-bold text-[#03162D] border-2 border-[#03162D] px-6 py-2.5 rounded-xl hover:bg-[#03162D] hover:text-white transition-colors whitespace-nowrap text-center">
+                <Link href="/contact" className="flex-shrink-0 text-sm font-bold text-[#FF2700] border-2 border-[#FF2700] px-6 py-2.5 rounded-xl hover:bg-[#FF2700] hover:text-white transition-colors">
                   Talk to us
                 </Link>
               </div>
@@ -662,7 +663,7 @@ export default function Home() {
         {/* ── FAQ ── */}
         <section id="faq" className="bg-gray-50 py-20">
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
-            <p className="text-center text-xs font-semibold tracking-[0.2em] uppercase text-[#495B7B] mb-4">FAQ</p>
+            <p className="text-center mb-4"><SectionLabel>FAQ</SectionLabel></p>
             <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-[#03162D] mb-12 tracking-tight leading-snug">
               If your question isn&apos;t answered here,{" "}
               please <Link href="/contact" className="text-[#FF2700] hover:underline">contact us</Link>{" "}
