@@ -12,6 +12,17 @@ import { TrustStrip } from "./components/TrustStrip";
 import { HowItWorksSteps } from "./components/HowItWorksSteps";
 import { WhyBetter } from "./components/WhyBetter";
 
+// Buy buttons point at /get, not /shop.
+//
+// /shop is an intent route: it reads the session and redirects a signed-out
+// visitor to /owner-login, so every buy button here was sending a stranger to
+// a login screen before they had seen a price. docs/SHOP_LOGIN_WALL.md called
+// that out as the leak every rupee of paid traffic hits.
+//
+// /get is the public storefront and already has a working guest checkout — its
+// CTA handler calls preventDefault() and runs buy(sku), which collects an
+// address and posts to /api/shop/guest/create-order. No account, no login. The
+// /shop href on that page is only its no-JS fallback.
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
 
@@ -246,7 +257,7 @@ export default function Home() {
                     anyone who clicks has already accepted the price. */}
                 <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
                   <GetStartedButton
-                    href={`${APP_URL}/shop`}
+                    href={`${APP_URL}/get`}
                     // Brand guideline, components/actions/Button.jsx primary:
                     // background var(--accent) #FF2700, hover var(--accent-hover)
                     // #D92200, white text, var(--radius-button) which resolves
@@ -408,7 +419,7 @@ export default function Home() {
                 <p className="text-[#495B7B] leading-relaxed mb-8 text-[15px]">
                   Most solutions need both parties on the same app. ParkTag doesn&apos;t. Whoever is trying to reach you just points their phone camera at your tag. That&apos;s it.
                 </p>
-                <a href={`${APP_URL}/shop`} className="inline-flex items-center bg-[#FF2700] hover:bg-[#D92200] text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
+                <a href={`${APP_URL}/get`} className="inline-flex items-center bg-[#FF2700] hover:bg-[#D92200] text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
                   Order your tag →
                 </a>
               </AnimateIn>
@@ -523,7 +534,7 @@ export default function Home() {
                     ))}
                   </ul>
 
-                  <a href={`${APP_URL}/shop`} className="block text-center border-2 border-[#FF2700] text-[#FF2700] font-bold py-3 rounded-xl hover:bg-[#FF2700] hover:text-white transition-colors text-sm">
+                  <a href={`${APP_URL}/get`} className="block text-center border-2 border-[#FF2700] text-[#FF2700] font-bold py-3 rounded-xl hover:bg-[#FF2700] hover:text-white transition-colors text-sm">
                     Get Solo Tag
                   </a>
                 </div>
@@ -564,7 +575,7 @@ export default function Home() {
                     ))}
                   </ul>
 
-                  <a href={`${APP_URL}/shop`} className="block text-center bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                  <a href={`${APP_URL}/get`} className="block text-center bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold py-3 rounded-xl transition-colors text-sm">
                     Get Duo Pack
                   </a>
                   {/* Duo Pack only — it is the same pack of 2 the Amazon
@@ -650,7 +661,7 @@ export default function Home() {
               </h2>
               <p className="text-white/50 mb-8">Join vehicle owners across India who park with confidence.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href={`${APP_URL}/shop`} className="inline-block bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold px-8 py-4 rounded-xl transition-colors text-base">
+                <a href={`${APP_URL}/get`} className="inline-block bg-[#FF2700] hover:bg-[var(--red-hover)] text-white font-bold px-8 py-4 rounded-xl transition-colors text-base">
                   Get Your ParkTag →
                 </a>
                 <BuyOnAmazonButton className="inline-flex items-center gap-1.5 text-base text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors" />

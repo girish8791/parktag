@@ -5,6 +5,17 @@ import Link from "next/link";
 
 import { BuyOnAmazonButton } from "./BuyOnAmazonButton";
 
+// Buy buttons point at /get, not /shop.
+//
+// /shop is an intent route: it reads the session and redirects a signed-out
+// visitor to /owner-login, so every buy button here was sending a stranger to
+// a login screen before they had seen a price. docs/SHOP_LOGIN_WALL.md called
+// that out as the leak every rupee of paid traffic hits.
+//
+// /get is the public storefront and already has a working guest checkout — its
+// CTA handler calls preventDefault() and runs buy(sku), which collects an
+// address and posts to /api/shop/guest/create-order. No account, no login. The
+// /shop href on that page is only its no-JS fallback.
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
 // Two dropdowns, not three.
@@ -21,8 +32,8 @@ const DROPDOWNS = {
   products: {
     label: "Products",
     items: [
-      { label: "Solo Tag · ₹299", sub: "1 vehicle", href: `${APP_URL}/shop`, internal: false },
-      { label: "Duo Pack · ₹499", sub: "1 car · front & back · saves ₹99", href: `${APP_URL}/shop`, internal: false },
+      { label: "Solo Tag · ₹299", sub: "1 vehicle", href: `${APP_URL}/get`, internal: false },
+      { label: "Duo Pack · ₹499", sub: "1 car · front & back · saves ₹99", href: `${APP_URL}/get`, internal: false },
       // Routes to the contact page rather than a mailto:, which does nothing at
       // all on a machine with no mail client configured.
       { label: "Fleet", sub: "5+ vehicles · custom pricing", href: "/contact", internal: true },
@@ -289,7 +300,7 @@ export function SiteHeader({ defaultDark = true }: { defaultDark?: boolean }) {
             {/* Title case. All caps on the least important item in the bar was
                 shouting the quietest thing in it. */}
             <a
-              href={`${APP_URL}/shop`}
+              href={`${APP_URL}/get`}
               className="px-3 py-2 text-sm rounded-lg transition-colors duration-200"
               style={{ color: textColor }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#FF2700")}
@@ -316,7 +327,7 @@ export function SiteHeader({ defaultDark = true }: { defaultDark?: boolean }) {
               style={{ color: textColor }}
             />
             <a
-              href={`${APP_URL}/shop`}
+              href={`${APP_URL}/get`}
               className="inline-flex items-center rounded-xl bg-[#FF2700] px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#D92200] shadow-[0_4px_16px_rgba(255,39,0,0.35)] hover:shadow-[0_6px_20px_rgba(255,39,0,0.45)]"
             >
               Get ParkTag
@@ -369,8 +380,8 @@ export function SiteHeader({ defaultDark = true }: { defaultDark?: boolean }) {
                 The drawer used to open on About Us, which is the page a
                 first-time visitor needs least. */}
             <div className="text-[10px] font-bold text-[#495B7B]/40 tracking-widest uppercase mb-2">Products</div>
-            <a href={`${APP_URL}/shop`} onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">Solo Tag · ₹299</a>
-            <a href={`${APP_URL}/shop`} onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">Duo Pack · ₹499</a>
+            <a href={`${APP_URL}/get`} onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">Solo Tag · ₹299</a>
+            <a href={`${APP_URL}/get`} onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">Duo Pack · ₹499</a>
             <Link href="/contact" onClick={closeAll} className="py-2.5 text-[#03162D] font-medium text-sm hover:text-[#FF2700] transition-colors">Fleet · 5+ vehicles</Link>
 
             <div className="text-[10px] font-bold text-[#495B7B]/40 tracking-widest uppercase mt-4 mb-2">Learn</div>
@@ -384,7 +395,7 @@ export function SiteHeader({ defaultDark = true }: { defaultDark?: boolean }) {
 
             <div className="mt-5 flex flex-col gap-3">
               <a href={`${APP_URL}/owner-login`} onClick={navigateSmoothly(`${APP_URL}/owner-login`)} className="text-center py-3 rounded-xl border-2 border-[#FF2700] text-[#FF2700] font-bold text-sm hover:bg-[#FF2700] hover:text-white transition-colors">Login</a>
-              <a href={`${APP_URL}/shop`} onClick={closeAll} className="text-center py-3 rounded-xl bg-[#FF2700] text-white font-bold text-sm hover:bg-[var(--red-hover)] transition-colors">Get ParkTag</a>
+              <a href={`${APP_URL}/get`} onClick={closeAll} className="text-center py-3 rounded-xl bg-[#FF2700] text-white font-bold text-sm hover:bg-[var(--red-hover)] transition-colors">Get ParkTag</a>
               {/* Alternative buy paths, ranked below Order Now on purpose: the
                   shop is ours and is the only route where we see the purchase. */}
               <BuyOnAmazonButton className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-300 text-[#495B7B] font-semibold text-sm hover:border-[#03162D] hover:text-[#03162D] transition-colors" />
