@@ -7,6 +7,7 @@ import { GetStartedButton } from "./components/GetStartedButton";
 import { BuyOnAmazonButton } from "./components/BuyOnAmazonButton";
 import { HazardStripe } from "./components/HazardStripe";
 import { SectionLabel } from "./components/SectionLabel";
+import { FeatureIcons } from "./components/FeatureIcons";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
@@ -311,27 +312,7 @@ export default function Home() {
               <SectionLabel>Some Special Features</SectionLabel>
             </p>
 
-            {/* Four across at every width, so the eight items always read as two
-                rows of four. sm:grid-cols-8 used to flatten them into a single
-                line on desktop, which turned a block you scan into a strip you
-                skim past and left the labels cramped under wide gaps. */}
-            <div className="grid grid-cols-4 gap-y-8 sm:gap-y-10 gap-x-4 sm:gap-x-8">
-              {([
-                ["Instant Scan Alert", <svg key="bell" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>],
-                ["Anonymous Chat", <svg key="chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
-                ["No App to Scan", <svg key="qr" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/></svg>],
-                ["Number Private", <svg key="lock" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>],
-                ["Any Vehicle Type", <svg key="car" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><path d="M5 12h14"/></svg>],
-                ["Share Your ETA", <svg key="loc" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>],
-                ["Waterproof Tag", <svg key="drop" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>],
-                ["1 Year Included", <svg key="pay" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>],
-              ] as [string, React.ReactNode][]).map(([label, icon]) => (
-                <div key={label} className="flex flex-col items-center gap-2.5 text-center group">
-                  <div className="text-[#495B7B] group-hover:text-[#FF2700] transition-colors duration-200">{icon}</div>
-                  <span className="text-[11px] text-[#495B7B] font-medium leading-tight">{label}</span>
-                </div>
-              ))}
-            </div>
+            <FeatureIcons />
           </div>
         </section>
 
@@ -339,6 +320,7 @@ export default function Home() {
         <section className="bg-gray-50 py-20">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <AnimateIn>
+              <p className="mb-4"><SectionLabel>The Problem</SectionLabel></p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#03162D] mb-3 tracking-tight">
                 Stop writing your number<br />on a piece of paper.
               </h2>
@@ -407,6 +389,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-14 lg:gap-20 items-center">
 
               <AnimateIn from="left">
+                <p className="mb-4"><SectionLabel>Why ParkTag</SectionLabel></p>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#03162D] mb-5 tracking-tight leading-tight">
                   Why ParkTag works<br />where others don&apos;t.
                 </h2>
@@ -446,6 +429,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-14 lg:gap-24 items-start">
 
               <AnimateIn from="left">
+                <p className="mb-4"><SectionLabel>How It Works</SectionLabel></p>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6 tracking-tight leading-tight">
                   A stranger reaches you.<br />Your number stays hidden.
                 </h2>
