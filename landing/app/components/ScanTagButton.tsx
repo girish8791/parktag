@@ -111,7 +111,7 @@ function QrGlyph() {
   );
 }
 
-export function ScanTagButton({ appUrl }: { appUrl: string }) {
+export function ScanTagButton({ appUrl, className }: { appUrl: string; className?: string }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("");
 
@@ -263,7 +263,7 @@ export function ScanTagButton({ appUrl }: { appUrl: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group inline-flex items-center gap-2.5 border border-[#FF2700] hover:bg-[#FF2700]/10 text-white font-semibold px-7 py-3.5 rounded-xl text-base transition-colors"
+        className={className ?? "group inline-flex items-center gap-2.5 border border-[#FF2700] hover:bg-[#FF2700]/10 text-white font-semibold px-7 py-3.5 rounded-xl text-base transition-colors"}
       >
         <QrGlyph />
         Scan a Tag

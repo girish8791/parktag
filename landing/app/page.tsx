@@ -199,16 +199,51 @@ export default function Home() {
                   <span className="whitespace-nowrap"><VehicleRotator /></span>,
                   without seeing your number.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <GetStartedButton href={`${APP_URL}/owner-login`} />
-                  <ScanTagButton appUrl={APP_URL} />
+                {/* One button, and it names the price. "Get Started" pointed at
+                    a login screen, which is the wrong first destination for
+                    someone who has never heard of the product, and is why this
+                    now goes to the shop. Naming ₹499 on the button also filters:
+                    anyone who clicks has already accepted the price. */}
+                <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
+                  <GetStartedButton
+                    href={`${APP_URL}/shop`}
+                    // Brand guideline, components/actions/Button.jsx primary:
+                    // background var(--accent) #FF2700, hover var(--accent-hover)
+                    // #D92200, white text, var(--radius-button) which resolves
+                    // to --radius-xl / 14px, and the accent shadow. The pill and
+                    // the yellow this replaces were taken from a reference image
+                    // and matched neither. tokens/colors.css is unambiguous:
+                    // "Brand red — the single accent. Signal, never decoration."
+                    className="inline-flex items-center gap-2 bg-[#FF2700] hover:bg-[#D92200] text-white font-bold px-8 py-4 rounded-[14px] text-base transition-all shadow-[0_4px_16px_rgba(255,39,0,0.35)] hover:shadow-[0_6px_20px_rgba(255,39,0,0.45)]"
+                  >
+                    Buy now · ₹499
+                    <span aria-hidden="true">→</span>
+                  </GetStartedButton>
+                  <a
+                    href="#how-it-works"
+                    className="text-white/80 hover:text-white font-semibold text-base transition-colors"
+                  >
+                    See how it works
+                  </a>
                 </div>
-                {/* A link, not a third button. An outlined button sitting beside
-                    two real buttons reads as a third equal option, and this is
-                    the route we least want the sale to take: Amazon keeps a cut
-                    and the purchase event never reaches our own analytics. */}
-                <div className="flex flex-wrap items-center gap-x-4 mt-6">
-                  <span className="text-white/35 text-sm">Or buy on</span>
+
+                {/* Three facts, not three claims. Each is checkable in the
+                    checkout: ₹499 is the pt-car-2 SKU, delivery is free on all
+                    orders, COD exists with the ₹50 surcharge the FAQ states.
+                    The reference row for this had "950,000+ tags active" and
+                    "Best seller on Amazon", which are the kind of numbers a
+                    stranger can disprove in one search. */}
+                <p className="mt-5 text-sm text-white/45">
+                  Pack of 2 · Free delivery · COD available
+                </p>
+
+                {/* The two routes we would rather a sale did not take, kept
+                    reachable and visibly minor. */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6">
+                  <ScanTagButton
+                    appUrl={APP_URL}
+                    className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors"
+                  />
                   <BuyOnAmazonButton className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/25 hover:decoration-white transition-colors" />
                 </div>
               </AnimateIn>

@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+
+// Font Awesome injects its own <style> at runtime, which in an SSR app lands
+// after first paint and shows every icon at full unstyled size for a frame.
+// Importing the stylesheet and switching autoAddCss off is the documented fix.
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+config.autoAddCss = false;
 import { WhatsAppBubble } from "./components/WhatsAppBubble";
 
 export const metadata: Metadata = {
