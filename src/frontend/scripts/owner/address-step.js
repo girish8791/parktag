@@ -67,21 +67,58 @@
   function injectStyles() {
     if (document.getElementById("pt-addr-styles")) return;
     var css = [
-      // Design tokens, scoped to the sheet.
+      // Design tokens, scoped to the sheet. --ease is the one curve everything
+      // here moves on: quick off the mark, long settle, no overshoot.
       "#pt-addr-ov{--r:#FF2700;--r-press:#d81f00;--ink:#0e1220;--muted:#6b7280;--line:#ececf0;--card:#fafafb;--tint:rgba(255,39,0,.08);",
+      "--ease:cubic-bezier(.22,1,.36,1);",
       "position:fixed;inset:0;z-index:1200;display:none;align-items:flex-end;justify-content:center;",
-      "background:rgba(14,18,32,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .2s ease;",
+      "background:rgba(14,18,32,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;",
       "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}",
-      "#pt-addr-ov.pt-open{display:flex;opacity:1;}",
+
+      // The backdrop is animated, not transitioned, and that is the whole reason
+      // it used to snap on: a transition cannot run on the same frame an element
+      // goes from display:none to display:flex, so the fade that was written
+      // here never actually played. An animation does run on that frame.
+      "#pt-addr-ov.pt-open{display:flex;animation:pt-bd-in .28s ease forwards;}",
+      // pointer-events off on the way out: the sheet resolves and the caller
+      // opens Razorpay at once, so this must not sit over it while it fades.
+      "#pt-addr-ov.pt-closing{pointer-events:none;animation:pt-bd-out .18s ease forwards;}",
+      "@keyframes pt-bd-in{from{opacity:0}to{opacity:1}}",
+      "@keyframes pt-bd-out{from{opacity:1}to{opacity:0}}",
 
       // Sheet
       "#pt-addr-sheet{background:#fff;width:100%;max-width:460px;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;",
       "border-radius:28px 28px 0 0;padding:10px 22px calc(22px + env(safe-area-inset-bottom));",
-      "box-shadow:0 -18px 50px -12px rgba(14,18,32,.35);opacity:0;transform-origin:bottom center;}",
-      // Gentle pop-in — a touch of overshoot, not a full bounce.
-      "#pt-addr-sheet.pt-in{animation:pt-pop .26s cubic-bezier(.22,1.15,.35,1) forwards;}",
-      "@keyframes pt-pop{0%{opacity:0;transform:scale(.92) translateY(10px);}55%{opacity:1;transform:scale(1.018) translateY(0);}100%{opacity:1;transform:scale(1);}}",
-      "@media(min-width:520px){#pt-addr-ov{align-items:center;padding:16px;}#pt-addr-sheet{border-radius:26px;box-shadow:0 30px 70px -20px rgba(14,18,32,.5);transform-origin:center;}}",
+      "box-shadow:0 -18px 50px -12px rgba(14,18,32,.35);opacity:0;transform:translate3d(0,100%,0);",
+      "transform-origin:bottom center;will-change:transform,opacity;}",
+
+      // It rises from the edge it is anchored to and decelerates into place
+      // rather than appearing at full size and scaling. Long enough that the eye
+      // follows the movement — the old .26s pop was over before it could.
+      "#pt-addr-sheet.pt-in{animation:pt-sheet-in .46s var(--ease) forwards;}",
+      "@keyframes pt-sheet-in{from{opacity:0;transform:translate3d(0,100%,0)}60%{opacity:1}to{opacity:1;transform:translate3d(0,0,0)}}",
+      "#pt-addr-ov.pt-closing #pt-addr-sheet{animation:pt-sheet-out .2s cubic-bezier(.4,0,1,1) forwards;}",
+      "@keyframes pt-sheet-out{from{opacity:1;transform:translate3d(0,0,0)}to{opacity:0;transform:translate3d(0,14%,0)}}",
+
+      // The contents arrive just behind the panel, a few frames apart, so it
+      // reads as one movement with depth instead of a finished slab sliding in.
+      "@keyframes pt-rise{from{opacity:0;transform:translate3d(0,9px,0)}to{opacity:1;transform:none}}",
+      "#pt-addr-sheet.pt-in>#pt-addr-grip{animation:pt-rise .34s var(--ease) .05s both;}",
+      "#pt-addr-sheet.pt-in>.pt-addr-eyebrow{animation:pt-rise .34s var(--ease) .09s both;}",
+      "#pt-addr-sheet.pt-in>h3{animation:pt-rise .34s var(--ease) .12s both;}",
+      "#pt-addr-sheet.pt-in>.pt-addr-sub{animation:pt-rise .34s var(--ease) .15s both;}",
+      // Whichever of the two views is showing. Replayed on the confirm -> edit
+      // swap too, where the sheet is already up and nothing else would move.
+      ".pt-reveal{animation:pt-rise .38s var(--ease) .1s both;}",
+
+      // Centred on a wide screen there is no edge to rise from, so it lifts and
+      // settles instead. Re-declaring the keyframes inside the query is what
+      // swaps the motion: when the query matches, its @keyframes block wins.
+      "@media(min-width:520px){#pt-addr-ov{align-items:center;padding:16px;}",
+      "#pt-addr-sheet{border-radius:26px;box-shadow:0 30px 70px -20px rgba(14,18,32,.5);",
+      "transform-origin:center;transform:translate3d(0,18px,0) scale(.97);}",
+      "@keyframes pt-sheet-in{from{opacity:0;transform:translate3d(0,18px,0) scale(.97)}to{opacity:1;transform:none}}",
+      "@keyframes pt-sheet-out{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,8px,0) scale(.985)}}}",
 
       // Grab handle
       "#pt-addr-grip{width:38px;height:4px;border-radius:99px;background:#e2e2ea;margin:0 auto 16px;}",
@@ -138,8 +175,12 @@
       "#pt-addr-secure svg{width:13px;height:13px;}",
       "#pt-addr-note{margin:9px 0 0;font-size:.72rem;color:#a3a8b3;text-align:center;}",
 
-      // Reduced motion
-      "@media(prefers-reduced-motion:reduce){#pt-addr-ov,.pt-addr-primary{transition:none;}#pt-addr-sheet.pt-in{animation:none;opacity:1;}}"
+      // Reduced motion. Every animation here fills forwards, so collapsing the
+      // durations lands each element on its final state on the first frame —
+      // the sheet still opens and closes, it just does not travel.
+      "@media(prefers-reduced-motion:reduce){.pt-addr-primary{transition:none;}",
+      "#pt-addr-ov.pt-open,#pt-addr-ov.pt-closing,#pt-addr-ov.pt-closing #pt-addr-sheet,",
+      "#pt-addr-sheet.pt-in,#pt-addr-sheet.pt-in>*,.pt-reveal{animation-duration:.01ms!important;animation-delay:0s!important;}}"
     ].join("");
     var s = document.createElement("style");
     s.id = "pt-addr-styles";
@@ -294,6 +335,7 @@
     els.sub.textContent = "We'll ship your ParkTag sticker here.";
     els.form.classList.add("pt-hide");
     els.confirm.classList.remove("pt-hide");
+    reveal(els.confirm);
   }
 
   // Show the editable form, optionally prefilled with an existing address.
@@ -327,6 +369,7 @@
       : "Where should we ship your official ParkTag sticker?";
     els.confirm.classList.add("pt-hide");
     els.form.classList.remove("pt-hide");
+    reveal(els.form);
   }
 
   async function onSave() {
@@ -371,10 +414,28 @@
   // the values — and an object is truthy, so `if (!await ptCollectAddress())`
   // still reads the same at every existing call site.
   function close(saved) {
-    if (els) els.ov.classList.remove("pt-open");
+    dismiss();
     var r = resolver;
     resolver = null;
     if (r) r(saved === true ? true : (saved || false));
+  }
+
+  // Play the exit, then take the sheet off screen. The promise resolves without
+  // waiting for it — the caller opens Razorpay next, and no payment window
+  // should be held back by a fade.
+  var closeTimer = null;
+  function dismiss() {
+    if (!els || !els.ov.classList.contains("pt-open")) return;
+    els.ov.classList.add("pt-closing");
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(function () {
+      // Reopened while it was fading: the open path clears pt-closing, and
+      // pulling pt-open now would hide a sheet that is on its way back in.
+      if (!els.ov.classList.contains("pt-closing")) return;
+      els.ov.classList.remove("pt-closing");
+      els.ov.classList.remove("pt-open");
+      els.sheet.classList.remove("pt-in");
+    }, 220);
   }
 
   // Fetch the saved address (if any) to decide which view to show.
@@ -403,11 +464,20 @@
     }
   }
 
-  // Restart the pop-in animation on the sheet (re-add the class after a reflow).
+  // Restart the entrance on the sheet (re-add the class after a reflow).
   function popIn() {
     els.sheet.classList.remove("pt-in");
     void els.sheet.offsetWidth; // force reflow so the animation replays
     els.sheet.classList.add("pt-in");
+  }
+
+  // The same trick for one element: used on the view being shown, so the
+  // confirm -> edit swap moves as well, not only the initial open.
+  function reveal(el) {
+    if (!el) return;
+    el.classList.remove("pt-reveal");
+    void el.offsetWidth;
+    el.classList.add("pt-reveal");
   }
 
   // Public API. Resolves once the address is confirmed or saved, false if
@@ -427,6 +497,10 @@
       els.confirm.classList.add("pt-hide");
       els.form.classList.add("pt-hide");
       els.sheet.classList.remove("pt-in");
+      // Reopened mid-fade: drop the exit and cancel the timer that would
+      // otherwise hide the overlay a moment from now.
+      clearTimeout(closeTimer);
+      els.ov.classList.remove("pt-closing");
       els.ov.classList.add("pt-open");
       // A guest has no saved address and no profile, so both lookups would be
       // two guaranteed 401s and a slower sheet. Straight to the blank form.
