@@ -424,80 +424,85 @@ export default function Home() {
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section id="how-it-works" data-nav-dark className="bg-[#03162D] py-20">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <div className="grid md:grid-cols-2 gap-14 lg:gap-24 items-start">
+        {/*
+          Rebuilt from a two-column layout that said everything twice. The left
+          column carried the heading, a paragraph and four bullets; the right
+          carried four numbered steps. The bullets were a summary of the steps
+          sitting next to the steps — "No app needed to scan" beside "No app. No
+          sign-up.", "Owner's number never exposed" beside "The scanner never
+          sees your number" — so the eye had to choose a column, then zigzag.
 
-              <AnimateIn from="left">
-                <p className="mb-4"><SectionLabel onDark>How It Works</SectionLabel></p>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-                  A stranger reaches you.<br />Your number stays hidden.
-                </h2>
-                <p className="text-white/55 leading-relaxed text-[15px] mb-8">
-                  ParkTag lets anyone contact a parked vehicle owner instantly, through a masked call or WhatsApp, without ever seeing the owner's private phone number.
-                </p>
-                <div className="flex flex-col gap-3">
-                  {["No app needed to scan", "Owner's number never exposed", "Works on any phone camera", "Owner controls tag on / off"].map((point) => (
-                    <div key={point} className="flex items-center gap-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#FF2700] flex-shrink-0" />
-                      <span className="text-white/50 text-sm">{point}</span>
-                    </div>
-                  ))}
-                </div>
-              </AnimateIn>
+          One column now, read top to bottom. The bullets are gone rather than
+          relocated: everything they said is in a step already.
 
-              <AnimateIn from="right" delay={120}>
-                <div className="space-y-0">
-                  {[
-                    {
-                      actor: "Owner",
-                      step: "Register your vehicle",
-                      body: "Visit parktag.me, create an account, and link your unique QR tag to your vehicle: plate number, contact preference, done.",
-                    },
-                    {
-                      actor: "Owner",
-                      step: "Stick the tag on",
-                      body: "Peel and stick the waterproof QR sticker on your windshield or bumper. Takes 30 seconds. Toggle it off any time from your dashboard.",
-                    },
-                    {
-                      actor: "Scanner",
-                      step: "Someone scans the QR",
-                      body: "No app. No sign-up. They open their phone camera, scan the tag, and choose to call or send a WhatsApp message.",
-                    },
-                    {
-                      actor: "Owner",
-                      step: "You get connected, privately",
-                      body: "The call or message is routed through ParkTag. The scanner never sees your number. You see their intent, reply, resolve.",
-                    },
-                  ].map(({ actor, step, body }, i) => (
-                    <div key={step} className="flex gap-5 items-start group">
-                      <div className="flex flex-col items-center flex-shrink-0" style={{ width: "32px" }}>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                          style={{ background: actor === "Scanner" ? "rgba(255, 39, 0,0.15)" : "rgba(255,255,255,0.08)", color: actor === "Scanner" ? "#FF2700" : "rgba(255,255,255,0.4)" }}>
-                          {i + 1}
-                        </div>
-                        {i < 3 && <div className="w-px flex-1 bg-white/8 mt-1 mb-1" style={{ minHeight: "24px" }} />}
-                      </div>
-                      <div className="pb-7">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-bold tracking-widest uppercase"
-                            style={{ color: actor === "Scanner" ? "#FF2700" : "rgba(255,255,255,0.25)" }}>
-                            {actor}
-                          </span>
-                        </div>
-                        <h3 className="text-white font-bold text-sm mb-1">{step}</h3>
-                        <p className="text-white/45 text-sm leading-relaxed">{body}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </AnimateIn>
+          The OWNER / SCANNER tags are gone too. They were a second taxonomy the
+          reader had to hold while also following 1-2-3-4, to answer a question
+          nobody asks. Whose turn it is is obvious from the sentence.
 
+          Step four inverts to a white card. Previously it looked identical to
+          steps one through three, so the sequence just stopped rather than
+          arriving anywhere; it is the payoff and now reads as one.
+        */}
+        <section id="how-it-works" data-nav-dark className="bg-[#03162D] py-28">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6">
+
+            <div className="text-center mb-14">
+              <p className="mb-5"><SectionLabel onDark>How It Works</SectionLabel></p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+                Someone reaches you.<br />Your number stays hidden.
+              </h2>
+              <p className="text-white/55 leading-relaxed max-w-lg mx-auto">
+                No app for them. No number for anyone. Here is the whole thing.
+              </p>
             </div>
+
+            <ol className="space-y-4">
+              {[
+                {
+                  title: "Stick the tag on",
+                  body: "Peel and place it on your glass. Activate it once, and your number is hidden from then on.",
+                },
+                {
+                  title: "Someone scans it",
+                  body: "Blocked them in? Lights left on? They point a phone camera at the tag. No app, no sign-up.",
+                },
+                {
+                  title: "They call or message",
+                  body: "Everything routes through ParkTag, so neither side ever sees the other's number.",
+                },
+                {
+                  title: "You stay private",
+                  body: "You decide how to answer. Reachable when it matters, private the rest of the time.",
+                },
+              ].map(({ title, body }, i, all) => {
+                const last = i === all.length - 1;
+                return (
+                  <li
+                    key={title}
+                    className={`flex items-start gap-5 sm:gap-7 rounded-2xl p-6 sm:p-7 ${
+                      last ? "bg-white" : "bg-white/[0.04] border border-white/10"
+                    }`}
+                  >
+                    {/* The number is the visual anchor of the row, so it is a
+                        solid block rather than a small outlined circle. Navy on
+                        #FEE600 measures 14.3:1. */}
+                    <span className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FEE600] text-[#03162D] font-extrabold text-lg">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="pt-1">
+                      <h3 className={`font-bold text-lg mb-1.5 ${last ? "text-[#03162D]" : "text-white"}`}>
+                        {title}
+                      </h3>
+                      <p className={`leading-relaxed ${last ? "text-[#495B7B]" : "text-white/55"}`}>
+                        {body}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
         </section>
-
-        <HazardStripe />
 
         {/* ── PRICING ── */}
         <section id="pricing" className="bg-white py-20">
