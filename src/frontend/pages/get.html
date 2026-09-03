@@ -111,8 +111,28 @@
 
       <!-- ── The tag ───────────────────────────────────────────────────── -->
       <h2 class="gt-h2">The tag</h2>
+      <!-- The same file the landing page's hero renders
+           (landing/public/final-landing-sticker.png, referenced from
+           landing/app/page.tsx), copied here byte-identical rather than
+           re-exported, so both properties show one sticker.
+
+           NOT org-parktag-sticker.svg, which was here first and rendered an
+           empty white box: that file is the print template, and its QR area is
+           a bare <rect fill="white" stroke="black"/> with no image data
+           anywhere in it, because the real code is per-tag and is placed there
+           at print time.
+
+           Dimensions are stated so the section cannot reflow as the image
+           decodes, and it is lazy-loaded because it sits below the fold. -->
       <figure class="gt-shot">
-        <img src="/images/org-parktag-sticker.svg" alt="The ParkTag windscreen sticker: scan the code to contact the vehicle owner" />
+        <img
+          src="/images/final-landing-sticker.png"
+          width="1000"
+          height="600"
+          loading="lazy"
+          decoding="async"
+          alt="The ParkTag windscreen sticker: scan the code to contact the vehicle owner, with call and WhatsApp buttons"
+        />
         <figcaption class="gt-shot-c">Sticks inside the windscreen. Scannable from outside.</figcaption>
       </figure>
 
