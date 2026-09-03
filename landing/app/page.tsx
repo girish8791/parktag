@@ -7,7 +7,8 @@ import { GetStartedButton } from "./components/GetStartedButton";
 import { BuyOnAmazonButton } from "./components/BuyOnAmazonButton";
 import { HazardStripe } from "./components/HazardStripe";
 import { SectionLabel } from "./components/SectionLabel";
-import { FeatureIcons } from "./components/FeatureIcons";
+import { WhatIsParkTag } from "./components/WhatIsParkTag";
+import { TrustStrip } from "./components/TrustStrip";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.parktag.me";
 
@@ -303,18 +304,18 @@ export default function Home() {
             instead of three unrelated flourishes. */}
         <HazardStripe />
 
-        {/* ── SPECIAL FEATURES ── */}
-        <section id="features" className="bg-white py-14">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6">
-
-            {/* Section label */}
-            <p className="text-center mb-10">
-              <SectionLabel>Some Special Features</SectionLabel>
-            </p>
-
-            <FeatureIcons />
+        {/* Straddles the seam rather than sitting below it. The white wrapper
+            begins under the caution band; the strip is pulled up out of it, so
+            its top half overlaps the band and the hero while its bottom half
+            lands on white. Negative margin rather than a transform, because a
+            transform would leave the space behind and open a gap under it. */}
+        <div className="bg-white">
+          <div className="relative z-10 -mt-[52px] sm:-mt-[58px]">
+            <TrustStrip />
           </div>
-        </section>
+        </div>
+
+        <WhatIsParkTag />
 
         {/* ── BEFORE / AFTER ── */}
         <section className="bg-gray-50 py-20">
@@ -484,9 +485,14 @@ export default function Home() {
                     }`}
                   >
                     {/* The number is the visual anchor of the row, so it is a
-                        solid block rather than a small outlined circle. Navy on
-                        #FEE600 measures 14.3:1. */}
-                    <span className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FEE600] text-[#03162D] font-extrabold text-lg">
+                        solid block rather than a small outlined circle.
+                        Brand red at the exact accent #FF2700, which white text
+                        only clears at 3.8:1. That is under the 4.5:1 AA floor
+                        for normal text but over the 3:1 for large text, and
+                        large starts at 18.66px bold — so the numeral is 20px
+                        (text-xl) rather than 18px. It wanted to be bigger
+                        anyway, being the thing that anchors the row. */}
+                    <span className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FF2700] text-white font-extrabold text-xl">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div className="pt-1">
