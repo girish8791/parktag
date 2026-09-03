@@ -18,6 +18,9 @@
   --gt-ground: #F6F8FB;
   --gt-ok-bg: #E8F7EE;
   --gt-ok-ink: #1B7A46;
+  /* Light navy, the same tint owner-membership.css fills a selected plan card
+     with — one value for "navy, but as a ground". */
+  --gt-navy-tint: #EAF0F7;
 
   --gt-wrap: 640px;
   --gt-gutter: 16px;
@@ -221,10 +224,15 @@
 
 /* ── The tag ─────────────────────────────────────────────────────────── */
 
+/* Navy edge, light-navy ground — the same pair the membership plan cards use
+   for their selected state, so the two screens read as one product rather than
+   two designs that happen to share a logo. The tint is what the sticker sits
+   on, and it is deliberately cool: the artwork is mostly brand red, and a warm
+   or white ground made it glare. */
 .gt-shot {
   margin: 0;
-  background: var(--gt-card);
-  border: 1px solid var(--gt-line);
+  background: var(--gt-navy-tint);
+  border: 1.5px solid var(--gt-ink);
   border-radius: 18px;
   padding: 16px;
   text-align: center;
