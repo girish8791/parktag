@@ -463,7 +463,7 @@ export default function Home() {
                 Someone reaches you.<br />Your number stays hidden.
               </h2>
               <p className="text-white/55 leading-relaxed max-w-lg mx-auto">
-                No app for them. No number for anyone. Here is the whole thing.
+                No app for them. No number sharing for you. Here is how it works.
               </p>
             </div>
 
