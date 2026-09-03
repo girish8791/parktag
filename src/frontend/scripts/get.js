@@ -126,7 +126,7 @@ function renderPacks(products) {
     bd.append(name, desc, price);
 
     const cta = document.createElement("a");
-    cta.className = "gt-pack-cta";
+    cta.className = "gt-btn gt-pack-cta";
     cta.href = "/shop";
     cta.textContent = "Order";
     cta.dataset.sku = pack.id;
