@@ -2,7 +2,6 @@ import Link from "next/link";
 import { SiteHeader } from "./components/SiteHeader";
 import { FaqAccordion } from "./components/FaqAccordion";
 import { AnimateIn } from "./components/AnimateIn";
-import { Marquee } from "./components/Marquee";
 import { VehicleRotator } from "./components/VehicleRotator";
 import { GetStartedButton } from "./components/GetStartedButton";
 import { ScanTagButton } from "./components/ScanTagButton";
@@ -229,14 +228,9 @@ export default function Home() {
 
         </section>
 
-        <Marquee />
-
-        {/* The band caps every dark section where it meets a light one. It sits
-            BELOW the marquee, not above it: hero and marquee are both navy, so
-            a band between them was dividing two halves of the same dark block
-            and left the real seam, marquee into the white features section,
-            undressed. Used as a rule rather than decoration, so it reads as the
-            brand's mark instead of three unrelated flourishes. */}
+        {/* The band caps every dark section where it meets a light one. Used as
+            a rule rather than decoration, so it reads as the brand's mark
+            instead of three unrelated flourishes. */}
         <HazardStripe />
 
         {/* ── SPECIAL FEATURES ── */}
