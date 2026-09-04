@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Shop | ParkTag QR tags for your car and bike</title>
+    <meta name="description" content="Pick your ParkTag. A QR sticker for your windscreen that lets anyone reach you about your parked vehicle without seeing your number. One-time buy, one year of Premium included, free delivery and cash on delivery." />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/images/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" href="/styles/shop.css?v=__ASSET_VERSION__" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- The funnel starts here. Surface "app", so GA4 and the Pixel both report:
+         this is a shop, not a credential page. -->
+    <script src="/pt-analytics.js" data-surface="app" defer></script>
+  </head>
+
+  <body class="sh-body">
+
+    <!-- Reached by people who have never signed in, so the header offers a way
+         in and a way to find an order, and nothing that assumes an account. -->
+    <header class="sh-header">
+      <a class="sh-logo" href="/shop" aria-label="ParkTag">
+        <img src="/images/dark-logo.png" alt="ParkTag" />
+      </a>
+      <nav class="sh-header-nav" aria-label="Account">
+        <a class="sh-header-link" href="/track-order">Track order</a>
+        <a class="sh-btn sh-signin" href="/owner-login">Sign in</a>
+      </nav>
+    </header>
+
+    <main class="sh-main">
+
+      <!-- ── Order recall ──────────────────────────────────────────────────
+           A guest has no account, so if the tab dies between paying and the
+           confirmation there is nothing that connects them to the order.
+           shop.js writes the number to this device before Razorpay opens and
+           shows this only once the server confirms the order was paid. -->
+      <a class="sh-recall" id="shRecall" hidden>
+        <span class="sh-recall-i" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m3.5 7.5 8.5 4.5 8.5-4.5M12 12v9" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="sh-recall-b">
+          <strong>Your ParkTag order is on its way</strong>
+          <span id="shRecallS"></span>
+        </span>
+        <span class="sh-recall-go" aria-hidden="true">Track &rarr;</span>
+      </a>
+
+      <!-- ── Heading ───────────────────────────────────────────────────── -->
+      <section class="sh-intro" aria-labelledby="shTitle">
+        <p class="sh-eyebrow">Shop</p>
+        <h1 class="sh-title" id="shTitle">Pick your ParkTag.</h1>
+        <p class="sh-lede">
+          One-time buy, one year of Premium included. Free delivery and cash on
+          delivery on every order.
+        </p>
+      </section>
+
+      <!-- ── Products ──────────────────────────────────────────────────────
+           Prices are fetched, never written here. The page must not be able to
+           quote a figure the checkout does not charge. The four skeletons hold
+           the grid's shape until the catalogue arrives. -->
+      <ul class="sh-grid" id="shGrid" aria-label="Packs">
+        <li class="sh-card sh-sk"><span class="sh-sk-img"></span><span class="sh-sk-line"></span><span class="sh-sk-line sh-sk-short"></span></li>
+        <li class="sh-card sh-sk"><span class="sh-sk-img"></span><span class="sh-sk-line"></span><span class="sh-sk-line sh-sk-short"></span></li>
+        <li class="sh-card sh-sk"><span class="sh-sk-img"></span><span class="sh-sk-line"></span><span class="sh-sk-line sh-sk-short"></span></li>
+        <li class="sh-card sh-sk"><span class="sh-sk-img"></span><span class="sh-sk-line"></span><span class="sh-sk-line sh-sk-short"></span></li>
+      </ul>
+
+      <p class="sh-note" id="shNote" hidden></p>
+
+      <!-- ── Terms ───────────────────────────────────────────────────────────
+           Every line is checkable in the checkout: delivery is free on all
+           orders, COD exists with the surcharge the server states, every tag
+           ships with a year of Premium, and the refund policy is 7 days. -->
+      <ul class="sh-trust" aria-label="Delivery and returns">
+        <li>Free delivery</li>
+        <li>Cash on delivery <span class="sh-trust-sub" id="shCod"></span></li>
+        <li>7-day replacement</li>
+        <li>1 year Premium included</li>
+      </ul>
+
+      <footer class="sh-foot">
+        <a href="/track-order">Track an order</a>
+        <span aria-hidden="true">·</span>
+        <a href="/owner-login">Sign in</a>
+      </footer>
+    </main>
+
+    <!-- ── Checkout ────────────────────────────────────────────────────────
+         The delivery step is NOT built here. address-step.js is the shared
+         sheet every physical-sticker purchase uses, and it is a self-contained
+         global that injects its own markup and styles. Only the confirmation
+         below is local, because a guest has no dashboard to be sent to. -->
+    <div class="sh-sheet-bd" id="shSheetBd" hidden></div>
+
+    <section class="sh-sheet" id="shSheet" hidden aria-modal="true" role="dialog" aria-labelledby="shDoneT">
+      <div class="sh-done" id="shDone">
+        <div class="sh-done-i" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="sh-done-t" id="shDoneT">Order confirmed</h2>
+        <p class="sh-done-s" id="shDoneSub"></p>
+        <a class="sh-btn sh-btn-primary" id="shDoneTrack" href="/track-order">Track this order</a>
+        <button class="sh-done-x" id="shDoneX" type="button">Done</button>
+      </div>
+    </section>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="/scripts/owner/address-step.js?v=__ASSET_VERSION__"></script>
+    <script type="module" src="/scripts/shop.js?v=__ASSET_VERSION__"></script>
+  </body>
+</html>
