@@ -44,6 +44,12 @@ const byId = (id) => document.getElementById(id);
 
 const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8L12 2.5Z" fill="currentColor"/></svg>';
 
+// PLACEHOLDER. The Amazon listing (B0HHG5KKJS) carried no rating on
+// 4 September 2026 and there is no reviews system of our own, so this figure is
+// not sourced from anywhere. Replace `value` with a real rating, and add
+// `count`, before this ships. Set to null to hide the row on every card.
+const RATING = { value: 4.8, count: null };
+
 // Whole rupees. Every amount on the wire is paise, matching the order routes,
 // so the conversion happens once, here.
 function rupees(paise) {
@@ -62,6 +68,27 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+// Five stars, filled to the exact value by clipping a coloured copy over a grey
+// one, so 4.8 reads as 4.8 and not as five.
+function ratingRow(rating) {
+  const value = Math.max(0, Math.min(5, Number(rating.value) || 0));
+  const row = el("div", "sh-rating");
+  row.setAttribute("aria-label", `Rated ${value.toFixed(1)} out of 5`);
+
+  const stars = el("span", "sh-stars");
+  stars.setAttribute("aria-hidden", "true");
+  const grey = el("span", "sh-stars-bg");
+  grey.innerHTML = STAR.repeat(5);
+  const fill = el("span", "sh-stars-fg");
+  fill.innerHTML = STAR.repeat(5);
+  fill.style.width = `${(value / 5) * 100}%`;
+  stars.append(grey, fill);
+
+  row.append(stars, el("span", "sh-rating-v", value.toFixed(1)));
+  if (rating.count) row.append(el("span", "sh-rating-c", `(${Number(rating.count).toLocaleString("en-IN")})`));
+  return row;
 }
 
 function renderGrid(products) {
@@ -97,7 +124,9 @@ function renderGrid(products) {
     img.height = 675;
 
     const bd = el("div", "sh-card-bd");
-    bd.append(el("h2", "sh-card-n", priced.name), el("p", "sh-card-d", pack.desc));
+    bd.append(el("h2", "sh-card-n", priced.name));
+    if (RATING) bd.append(ratingRow(RATING));
+    bd.append(el("p", "sh-card-d", pack.desc));
 
     const ft = el("div", "sh-card-ft");
     const price = el("div", "sh-price");

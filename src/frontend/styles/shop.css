@@ -251,6 +251,15 @@
   line-height: 1.25;
   letter-spacing: -.01em;
 }
+.sh-rating { display: flex; align-items: center; gap: 6px; }
+.sh-stars { position: relative; display: inline-block; height: 16px; line-height: 0; }
+.sh-stars-bg, .sh-stars-fg { display: inline-flex; gap: 1px; white-space: nowrap; }
+.sh-stars-bg { color: #D5DBE4; }
+.sh-stars-fg { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: var(--sh-ink); }
+.sh-stars svg { width: 16px; height: 16px; flex-shrink: 0; }
+.sh-rating-v { font-size: 14px; font-weight: 700; }
+.sh-rating-c { font-size: 13px; color: var(--sh-ink-3); }
+
 .sh-card-d {
   margin: 0;
   font-size: 14px;
