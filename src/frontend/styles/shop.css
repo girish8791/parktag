@@ -209,14 +209,17 @@
 
 /* Image area: the same 4:3 ground for every pack so the row reads as one
  * shelf, with the artwork contained rather than cropped. */
+.sh-card-media {
+  padding: 18px;
+  background: var(--sh-img-ground);
+}
 .sh-card-img {
   display: block;
   width: 100%;
   height: auto; /* the width/height attributes exist for layout stability; aspect-ratio sizes the box */
   aspect-ratio: 4 / 3;
-  object-fit: contain;
-  padding: 18px;
-  background: var(--sh-img-ground);
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .sh-badge {

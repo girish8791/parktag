@@ -115,6 +115,7 @@ function renderGrid(products) {
       li.append(badge);
     }
 
+    const media = el("div", "sh-card-media");
     const img = el("img", "sh-card-img");
     img.src = pack.image;
     img.alt = "";
@@ -122,6 +123,7 @@ function renderGrid(products) {
     img.decoding = "async";
     img.width = 900;
     img.height = 675;
+    media.append(img);
 
     const bd = el("div", "sh-card-bd");
     bd.append(el("h2", "sh-card-n", priced.name));
@@ -146,7 +148,7 @@ function renderGrid(products) {
     cta.setAttribute("aria-label", `Order ${priced.name}`);
 
     ft.append(price, cta);
-    li.append(img, bd, ft);
+    li.append(media, bd, ft);
     cards.push(li);
   }
 
