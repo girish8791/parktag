@@ -368,6 +368,7 @@ async function load() {
   renderGrid(payload.products);
   renderCod(payload.codSurchargePaise || 0);
   wireCheckout();
+  byId("shYear").textContent = String(new Date().getFullYear());
 
   // After the page is usable, never in front of it.
   showRecall();

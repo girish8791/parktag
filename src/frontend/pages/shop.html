@@ -80,18 +80,86 @@
            orders, COD exists with the surcharge the server states, every tag
            ships with a year of Premium, and the refund policy is 7 days. -->
       <ul class="sh-trust" aria-label="Delivery and returns">
-        <li>Free delivery</li>
-        <li>Cash on delivery <span class="sh-trust-sub" id="shCod"></span></li>
-        <li>7-day replacement</li>
-        <li>1 year Premium included</li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7h10v9H3zM13 10h4l3 3v3h-7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.8" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="18" r="1.8" stroke="currentColor" stroke-width="1.7"/></svg>
+          Free delivery
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7"/><path d="M6.5 9.5h.01M17.5 14.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Cash on delivery <span class="sh-trust-sub" id="shCod"></span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          7-day replacement
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5c0 4.6-3 8.6-7 10-4-1.4-7-5.4-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          1 year Premium included
+        </li>
       </ul>
 
-      <footer class="sh-foot">
-        <a href="/track-order">Track an order</a>
-        <span aria-hidden="true">·</span>
-        <a href="/owner-login">Sign in</a>
-      </footer>
+      <!-- Three things a first-time buyer asks before paying a stranger online:
+           what does delivery cost, who do I talk to, what if it arrives broken.
+           Each answer is one the FAQ and the checkout already make. -->
+      <ul class="sh-cards" aria-label="Before you order">
+        <li class="sh-info">
+          <span class="sh-info-i" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 7h10v9H3zM13 10h4l3 3v3h-7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.8" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="18" r="1.8" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <div>
+            <h2 class="sh-info-t">Free delivery</h2>
+            <p class="sh-info-d">Delivered anywhere in India at no extra cost. Pay online, or cash when it arrives.</p>
+          </div>
+        </li>
+        <li class="sh-info">
+          <span class="sh-info-i" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 9.5c.3 2.6 2.4 4.9 5 5.5l1.5-1.5 2 1-.5 1.8c-3.6.8-8.2-3.8-7.5-7.5l1.8-.5 1 2-1.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </span>
+          <div>
+            <h2 class="sh-info-t">Help on WhatsApp</h2>
+            <p class="sh-info-d">Questions before or after you order? Message us at <a class="sh-info-link" href="https://wa.me/918791638854" target="_blank" rel="noopener">+91 87916 38854</a>.</p>
+          </div>
+        </li>
+        <li class="sh-info">
+          <span class="sh-info-i" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <div>
+            <h2 class="sh-info-t">7-day replacement</h2>
+            <p class="sh-info-d">Arrived damaged or faulty? Tell us within 7 days and we send a new one.</p>
+          </div>
+        </li>
+      </ul>
     </main>
+
+    <footer class="sh-footer">
+      <div class="sh-footer-in">
+        <div class="sh-footer-brand">
+          <img src="/images/dark-logo.png" alt="ParkTag" />
+          <p>Be reachable. Stay private.</p>
+          <a class="sh-footer-mail" href="mailto:support@parktag.me">support@parktag.me</a>
+        </div>
+        <nav class="sh-footer-col" aria-label="Shop">
+          <h3>Shop</h3>
+          <a href="/shop">All packs</a>
+          <a href="/track-order">Track an order</a>
+          <a href="/owner-login">Sign in</a>
+        </nav>
+        <nav class="sh-footer-col" aria-label="Company">
+          <h3>Company</h3>
+          <a href="https://parktag.me/">How it works</a>
+          <a href="https://parktag.me/about">About</a>
+          <a href="https://parktag.me/contact">Contact</a>
+        </nav>
+        <nav class="sh-footer-col" aria-label="Legal">
+          <h3>Legal</h3>
+          <a href="https://parktag.me/privacy">Privacy</a>
+          <a href="https://parktag.me/terms">Terms</a>
+          <a href="https://parktag.me/refund">Refund policy</a>
+        </nav>
+      </div>
+      <p class="sh-footer-copy">&copy; <span id="shYear">2026</span> ParkTag. All rights reserved.</p>
+    </footer>
 
     <!-- ── Checkout ────────────────────────────────────────────────────────
          The delivery step is NOT built here. address-step.js is the shared
