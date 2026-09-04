@@ -18,8 +18,7 @@ const PACKS = [
     desc: "Two tags: two cars, or the front and back of one.",
     image: "/images/shop-car-2.svg",
     orig: 799,
-    // Checkable, not a mood: ₹499 for two is less per tag than ₹299 for one.
-    badge: "Best value"
+    badge: "Best seller"
   },
   {
     id: "pt-car-1",
@@ -42,6 +41,8 @@ const PACKS = [
 ];
 
 const byId = (id) => document.getElementById(id);
+
+const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8L12 2.5Z" fill="currentColor"/></svg>';
 
 // Whole rupees. Every amount on the wire is paise, matching the order routes,
 // so the conversion happens once, here.
@@ -80,7 +81,12 @@ function renderGrid(products) {
     li.dataset.card = pack.id;
     if (want === pack.id) li.classList.add("sh-card-hi");
 
-    if (pack.badge) li.append(el("span", "sh-badge", pack.badge));
+    if (pack.badge) {
+      const badge = el("span", "sh-badge");
+      badge.innerHTML = STAR; // static markup, never user input
+      badge.append(pack.badge);
+      li.append(badge);
+    }
 
     const img = el("img", "sh-card-img");
     img.src = pack.image;

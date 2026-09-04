@@ -29,6 +29,10 @@
 
 * { box-sizing: border-box; }
 
+/* Author display rules (display: flex on .sh-recall) outrank the browser's own
+ * [hidden] { display: none }, so without this the recall bar renders empty. */
+[hidden] { display: none !important; }
+
 .sh-body {
   margin: 0;
   background: var(--sh-ground);
@@ -218,7 +222,10 @@
 .sh-badge {
   position: absolute;
   top: 12px; left: 12px;
-  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 8px;
   border-radius: 999px;
   background: var(--sh-ink);
   color: #fff;
@@ -227,6 +234,8 @@
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+/* The caution yellow from the hero band: the one place it appears on this page. */
+.sh-badge svg { width: 13px; height: 13px; color: #FEE600; }
 
 .sh-card-bd {
   display: flex;
