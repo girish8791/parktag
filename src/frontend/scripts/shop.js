@@ -267,6 +267,8 @@ function say(message) {
   if (!note) return;
   note.hidden = false;
   note.textContent = message;
+  // The sheet that just closed may have left the page scrolled past this.
+  note.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 async function buy(sku) {

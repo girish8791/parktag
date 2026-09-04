@@ -302,7 +302,7 @@
 @media (prefers-reduced-motion: reduce) { .sh-sk-line { animation: none; } }
 
 .sh-note {
-  margin: 16px 0 0;
+  margin: 0 0 16px;
   padding: 12px 14px;
   border-radius: 12px;
   background: #FFF2EF;
