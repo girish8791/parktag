@@ -36,7 +36,7 @@ const PACKS = [
     id: "pt-bike-1",
     desc: "For a two-wheeler, front and back.",
     image: "/images/shop-bike.webp",
-    orig: 499
+    orig: 799
   }
 ];
 
@@ -168,7 +168,7 @@ function renderCod(codPaise) {
 //
 // A guest has no account, so if the tab dies between the payment succeeding and
 // the confirmation rendering, nothing anywhere ties that person to their order.
-// It is still fulfilled, Razorpay's webhook does that without the browser , 
+// It is still fulfilled, Razorpay's webhook does that without the browser, 
 // and it still ships. They simply cannot find it. So the number is written to
 // this device the moment the order exists, which is BEFORE Razorpay opens.
 // Nothing sensitive is stored: an order number and the last four digits of the
@@ -241,7 +241,7 @@ async function showRecall() {
 //
 // Pack, then delivery address, then Razorpay. No sign-in anywhere in it.
 // window.ptCollectAddress is the sheet the dashboard already uses, called with
-// { guest: true }. This sends a productId and that address and nothing else , 
+// { guest: true }. This sends a productId and that address and nothing else, 
 // no price, no total, so a tampered request cannot buy a ₹499 pack for ₹1.
 
 let _sku = null;
