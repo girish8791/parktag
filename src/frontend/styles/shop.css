@@ -208,6 +208,7 @@
 .sh-card-img {
   display: block;
   width: 100%;
+  height: auto; /* the width/height attributes exist for layout stability; aspect-ratio sizes the box */
   aspect-ratio: 4 / 3;
   object-fit: contain;
   padding: 18px;
