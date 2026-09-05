@@ -135,6 +135,15 @@ function renderFeatures() {
 
 // ── Action ─────────────────────────────────────────────────────────────────
 
+// A bold lead line and the explanation under it. replaceChildren with real
+// nodes, never innerHTML — the lead carries a formatted date and the body is
+// fixed copy, and neither has any business being parsed as markup.
+function setNote(note, lead, rest) {
+  const strong = document.createElement("strong");
+  strong.textContent = lead;
+  note.replaceChildren(strong, document.createTextNode(rest));
+}
+
 function renderCta() {
   const plan = data.plans.find((p) => p.id === selectedPlan);
   const cta = byId("mbCta");
@@ -161,16 +170,24 @@ function renderCta() {
   // the current period, not from today — so the button stays live.
   if (data.subscription && data.subscription.active && data.subscription.currentPeriodEnd) {
     note.hidden = false;
+    const until = formatDate(data.subscription.currentPeriodEnd);
     // Two kinds of cover, and calling the free year a "membership" would be
     // wrong twice over: the owner never bought it, and it is the thing the
     // button is trying to sell them. The date and the "adds to it" rule are
     // the same either way, because the server treats them the same.
-    note.textContent = data.subscription.trial
-      ? `Your premium tag is covered until ${formatDate(data.subscription.currentPeriodEnd)} ` +
-        `— the free year included with it. There is nothing to pay until then. ` +
-        `Buying now adds time after that date, it does not replace it.`
-      : `You are a member until ${formatDate(data.subscription.currentPeriodEnd)}. ` +
-        `Buying again adds to that date rather than restarting from today.`;
+    //
+    // The date leads, on its own line, because it is the one fact somebody
+    // opening this screen came to find. Built from nodes rather than a string
+    // of markup: nothing here is assembled into HTML, so nothing here can be
+    // injected into.
+    setNote(
+      note,
+      data.subscription.trial ? `Covered until ${until}` : `Member until ${until}`,
+      data.subscription.trial
+        ? "The free year included with your premium tag. There is nothing to pay " +
+          "until then — buying now adds time after that date, it does not replace it."
+        : "Buying again adds to that date rather than restarting from today."
+    );
     return;
   }
 
