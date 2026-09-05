@@ -156,14 +156,21 @@ function renderCta() {
     return;
   }
 
-  // Already a member: say so rather than selling them what they hold. Buying
+  // Already covered: say so rather than selling them what they hold. Buying
   // again stays allowed and stays correct — the server extends from the end of
   // the current period, not from today — so the button stays live.
   if (data.subscription && data.subscription.active && data.subscription.currentPeriodEnd) {
     note.hidden = false;
-    note.textContent =
-      `You are a member until ${formatDate(data.subscription.currentPeriodEnd)}. ` +
-      `Buying again adds to that date rather than restarting from today.`;
+    // Two kinds of cover, and calling the free year a "membership" would be
+    // wrong twice over: the owner never bought it, and it is the thing the
+    // button is trying to sell them. The date and the "adds to it" rule are
+    // the same either way, because the server treats them the same.
+    note.textContent = data.subscription.trial
+      ? `Your premium tag is covered until ${formatDate(data.subscription.currentPeriodEnd)} ` +
+        `— the free year included with it. There is nothing to pay until then. ` +
+        `Buying now adds time after that date, it does not replace it.`
+      : `You are a member until ${formatDate(data.subscription.currentPeriodEnd)}. ` +
+        `Buying again adds to that date rather than restarting from today.`;
     return;
   }
 
